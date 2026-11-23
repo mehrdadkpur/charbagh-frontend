@@ -209,6 +209,12 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
 
   const age = useMemo(() => calculateAge(student?.birthDate), [student?.birthDate]);
   const canHaveParent = age !== null && age < 18;
+  const filteredAvailableParents = availableParents.filter((parent) => {
+    const term = parentSearch.trim().toLocaleLowerCase();
+    if (!term) return true;
+    return [parent.firstName, parent.lastName, parent.nationalIdentificationNumber, parent.mobile]
+      .some((value) => value?.toLocaleLowerCase().includes(term));
+  });
 
   const loadStudent = useCallback(async () => {
     setLoading(true);
@@ -240,7 +246,6 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
           nationalIdentificationNumber: item.nationalIdentificationNumber,
           mobile: item.mobile,
           profileImageUrl: item.profileImageUrl,
-          status: undefined,
         },
       }));
       setParents(items);
@@ -422,7 +427,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
             <div className="space-y-5 p-5">
               <div><label htmlFor="parent-search" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">جست‌وجوی والد</label><div className="relative"><Search size={17} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" /><input id="parent-search" value={parentSearch} onChange={(event) => setParentSearch(event.target.value)} placeholder="نام، نام خانوادگی یا کد ملی" className="h-11 w-full rounded-xl border border-gray-200 bg-white pr-10 pl-3 text-sm text-gray-900 outline-none focus:border-elf dark:border-gray-700 dark:bg-gray-800 dark:text-white" /></div></div>
               <div className="max-h-64 space-y-2 overflow-y-auto rounded-xl border border-gray-100 p-2 dark:border-gray-800">
-                {searchingParents ? <div className="flex items-center justify-center gap-2 py-8 text-sm text-gray-500"><LoaderCircle size={17} className="animate-spin" />در حال جست‌وجو...</div> : availableParents.length === 0 ? <p className="py-8 text-center text-sm text-gray-500">والدی با این مشخصات پیدا نشد.</p> : availableParents.map((parent) => <button type="button" key={parent.id} onClick={() => setSelectedParentId(parent.id)} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-right transition ${selectedParentId === parent.id ? "border-elf bg-elf/5 dark:bg-elf/10" : "border-transparent hover:bg-gray-50 dark:hover:bg-gray-800"}`}><ParentAvatar parent={parent} /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-gray-900 dark:text-white">{parent.firstName} {parent.lastName}</span><span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">کد ملی: {parent.nationalIdentificationNumber || "ثبت نشده"}</span></span>{selectedParentId === parent.id && <CheckCircle2 size={19} className="text-elf" />}</button>)}
+                {searchingParents ? <div className="flex items-center justify-center gap-2 py-8 text-sm text-gray-500"><LoaderCircle size={17} className="animate-spin" />در حال جست‌وجو...</div> : filteredAvailableParents.length === 0 ? <p className="py-8 text-center text-sm text-gray-500">والدی با این مشخصات پیدا نشد.</p> : filteredAvailableParents.map((parent) => <button type="button" key={parent.id} onClick={() => setSelectedParentId(parent.id)} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-right transition ${selectedParentId === parent.id ? "border-elf bg-elf/5 dark:bg-elf/10" : "border-transparent hover:bg-gray-50 dark:hover:bg-gray-800"}`}><ParentAvatar parent={parent} /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-gray-900 dark:text-white">{parent.firstName} {parent.lastName}</span><span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">کد ملی: {parent.nationalIdentificationNumber || "ثبت نشده"}</span></span>{selectedParentId === parent.id && <CheckCircle2 size={19} className="text-elf" />}</button>)}
               </div>
               <div><label htmlFor="parent-relationship" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">نسبت با هنرآموز</label><select id="parent-relationship" value={selectedRelationship} onChange={(event) => setSelectedRelationship(Number(event.target.value) as StudentParentRelationship)} className="h-11 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-elf dark:border-gray-700 dark:bg-gray-800 dark:text-white">{RELATIONSHIPS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
               <div className="flex flex-col-reverse gap-2 border-t border-gray-100 pt-4 dark:border-gray-800 sm:flex-row sm:justify-end"><button type="button" onClick={() => setParentModalOpen(false)} className="h-10 rounded-xl border border-gray-200 px-4 text-sm font-medium text-gray-700 dark:border-gray-700 dark:text-gray-200">انصراف</button><button type="button" disabled={!selectedParentId || parentBusy} onClick={() => void connectParent()} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-elf px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">{parentBusy && <LoaderCircle size={16} className="animate-spin" />}اتصال والد</button></div>
