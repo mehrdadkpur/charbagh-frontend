@@ -171,27 +171,32 @@ export interface ITeacherInstrumentDetails {
   defaultBookAuthor: string | null;
 }
 
+// قرارداد لیست هنرآموزان
 export interface ITeacher {
   id: string;
   userId: string;
   firstName: string;
   lastName: string;
-  mobile: string;
   email: string | null;
   profileImageUrl: string | null;
+  personnelCode: string;
+  employmentDate: string;
+  education: number | null;
+  experienceYears: number | null;
+  biography: string | null;
+  status: number;
+}
+
+// قرارداد جزئیات هنرآموز؛ GET /api/teachers/{id}
+export interface ITeacherDetails extends ITeacher {
+  mobile: string;
   birthDate: string | null;
   gender: number;
   nationalIdentificationNumber: string;
   address: string | null;
   userBiography: string | null;
   nationality: string;
-  personnelCode: string;
-  employmentDate: string;
-  education: number | null;
-  experienceYears: number | null;
-  biography: string | null;
   isVisibleOnWebsite: boolean;
-  status: number;
   instruments: ITeacherInstrumentDetails[];
 }
 
