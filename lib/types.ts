@@ -156,19 +156,43 @@ export interface WizardData {
   books: IBook[];
 }
 
+export interface ITeacherInstrumentDetails {
+  id: string;
+  instrumentId: string;
+  instrumentName: string;
+  englishName: string | null;
+  imageUrl: string | null;
+  startTeachingDate: string | null;
+  teachingLevel: number;
+  defaultSessionFee: number | null;
+  isActive: boolean;
+  defaultBookId: string | null;
+  defaultBookTitle: string | null;
+  defaultBookAuthor: string | null;
+}
+
 export interface ITeacher {
   id: string;
   userId: string;
   firstName: string;
   lastName: string;
+  mobile: string;
   email: string | null;
   profileImageUrl: string | null;
+  birthDate: string | null;
+  gender: number;
+  nationalIdentificationNumber: string;
+  address: string | null;
+  userBiography: string | null;
+  nationality: string;
   personnelCode: string;
   employmentDate: string;
-  education: number;
+  education: number | null;
   experienceYears: number | null;
   biography: string | null;
+  isVisibleOnWebsite: boolean;
   status: number;
+  instruments: ITeacherInstrumentDetails[];
 }
 
 export interface IStudent {
