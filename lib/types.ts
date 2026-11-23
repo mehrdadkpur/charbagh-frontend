@@ -156,22 +156,6 @@ export interface WizardData {
   books: IBook[];
 }
 
-export interface ITeacherInstrumentDetails {
-  id: string;
-  instrumentId: string;
-  instrumentName: string;
-  englishName: string | null;
-  imageUrl: string | null;
-  startTeachingDate: string | null;
-  teachingLevel: number;
-  defaultSessionFee: number | null;
-  isActive: boolean;
-  defaultBookId: string | null;
-  defaultBookTitle: string | null;
-  defaultBookAuthor: string | null;
-}
-
-// قرارداد لیست هنرآموزان
 export interface ITeacher {
   id: string;
   userId: string;
@@ -181,23 +165,10 @@ export interface ITeacher {
   profileImageUrl: string | null;
   personnelCode: string;
   employmentDate: string;
-  education: number | null;
+  education: number;
   experienceYears: number | null;
   biography: string | null;
   status: number;
-}
-
-// قرارداد جزئیات هنرآموز؛ GET /api/teachers/{id}
-export interface ITeacherDetails extends ITeacher {
-  mobile: string;
-  birthDate: string | null;
-  gender: number;
-  nationalIdentificationNumber: string;
-  address: string | null;
-  userBiography: string | null;
-  nationality: string;
-  isVisibleOnWebsite: boolean;
-  instruments: ITeacherInstrumentDetails[];
 }
 
 export interface IStudent {
@@ -205,34 +176,14 @@ export interface IStudent {
   userId: string;
   firstName: string;
   lastName: string;
-  nationalIdentificationNumber: string;
-  birthDate: string | null;
+  nationalIdentificationNumber:string;
+  birthDate:string;
   email: string | null;
   profileImageUrl: string | null;
   studentCode: string;
   registrationDate: string;
   status: number;
-  biography: string | null;
-}
-
-export interface IStudentParentDetails {
-  id: string;
-  parentId: string;
-  relationship: number;
-  firstName: string;
-  lastName: string;
-  nationalIdentificationNumber: string | null;
-  mobile: string | null;
-  profileImageUrl: string | null;
-  email: string | null;
-}
-
-export interface IStudentDetails extends IStudent {
-  mobile: string;
-  gender: number;
-  address: string | null;
-  nationality: string | null;
-  parents: IStudentParentDetails[];
+  biography: string;
 }
 
 export interface IStaff {
