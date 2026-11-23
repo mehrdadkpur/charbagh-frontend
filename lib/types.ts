@@ -205,14 +205,34 @@ export interface IStudent {
   userId: string;
   firstName: string;
   lastName: string;
-  nationalIdentificationNumber:string;
-  birthDate:string;
+  nationalIdentificationNumber: string;
+  birthDate: string | null;
   email: string | null;
   profileImageUrl: string | null;
   studentCode: string;
   registrationDate: string;
   status: number;
-  biography: string;
+  biography: string | null;
+}
+
+export interface IStudentParentDetails {
+  id: string;
+  parentId: string;
+  relationship: number;
+  firstName: string;
+  lastName: string;
+  nationalIdentificationNumber: string | null;
+  mobile: string | null;
+  profileImageUrl: string | null;
+  email: string | null;
+}
+
+export interface IStudentDetails extends IStudent {
+  mobile: string;
+  gender: number;
+  address: string | null;
+  nationality: string | null;
+  parents: IStudentParentDetails[];
 }
 
 export interface IStaff {
