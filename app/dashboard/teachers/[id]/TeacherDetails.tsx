@@ -6,30 +6,29 @@ import Swal from "sweetalert2";
 import {
   AlertCircle,
   Ban,
+  BookOpen,
   CalendarDays,
   CheckCircle2,
+  CreditCard,
   GraduationCap,
   LoaderCircle,
   Mail,
+  MapPin,
+  Music2,
   Pencil,
   PauseCircle,
+  Phone,
   RefreshCw,
   RotateCcw,
   UserRound,
-  UsersRound,
+  VenusAndMars,
 } from "lucide-react";
 
 import { apiFetch } from "@/lib/apiFetch";
 import { ApiError } from "@/helper/ApiError";
-import type { ITeacher } from "@/lib/types";
+import type { ITeacher, ITeacherInstrumentDetails } from "@/lib/types";
 
-const TEACHER_STATUS = {
-  Pending: 0,
-  Active: 1,
-  Suspended: 2,
-  Blocked: 3,
-} as const;
-
+const TEACHER_STATUS = { Pending: 0, Active: 1, Suspended: 2, Blocked: 3 } as const;
 type TeacherAction = "activate" | "suspend" | "block" | "unblock";
 
 const STATUS_OPTIONS = [
@@ -45,11 +44,8 @@ function formatNumber(value: number) {
 
 function formatDate(value?: string | null) {
   if (!value) return "ثبت نشده";
-
   const date = new Date(value);
-
   if (Number.isNaN(date.getTime())) return "ثبت نشده";
-
   return new Intl.DateTimeFormat("fa-IR", {
     year: "numeric",
     month: "long",
@@ -58,26 +54,19 @@ function formatDate(value?: string | null) {
 }
 
 function getStatusLabel(status: number) {
-  return (
-    STATUS_OPTIONS.find((item) => item.value === status)?.label ??
-    "نامشخص"
-  );
+  return STATUS_OPTIONS.find((item) => item.value === status)?.label ?? "نامشخص";
 }
 
 function getStatusClass(status: number) {
   switch (status) {
     case TEACHER_STATUS.Active:
       return "bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-400/10 dark:text-green-300 dark:ring-green-400/20";
-
     case TEACHER_STATUS.Pending:
       return "bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-400/20";
-
     case TEACHER_STATUS.Suspended:
       return "bg-orange-50 text-orange-700 ring-orange-600/20 dark:bg-orange-400/10 dark:text-orange-300 dark:ring-orange-400/20";
-
     case TEACHER_STATUS.Blocked:
       return "bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-400/10 dark:text-red-300 dark:ring-red-400/20";
-
     default:
       return "bg-gray-100 text-gray-600 ring-gray-500/20 dark:bg-gray-800 dark:text-gray-300";
   }
@@ -85,7 +74,6 @@ function getStatusClass(status: number) {
 
 function getEducationLabel(value?: number | null) {
   if (value == null) return "ثبت نشده";
-
   const labels: Record<number, string> = {
     0: "نامشخص",
     1: "دیپلم",
@@ -94,7 +82,26 @@ function getEducationLabel(value?: number | null) {
     4: "کارشناسی ارشد",
     5: "دکتری",
   };
+  return labels[value] ?? "نامشخص";
+}
 
+function getGenderLabel(value: number) {
+  const labels: Record<number, string> = {
+    0: "زن",
+    1: "مرد",
+    2: "سایر",
+    3: "نامشخص",
+  };
+  return labels[value] ?? "نامشخص";
+}
+
+function getTeachingLevelLabel(value: number) {
+  const labels: Record<number, string> = {
+    1: "مبتدی",
+    2: "متوسط",
+    3: "پیشرفته",
+    4: "حرفه‌ای",
+  };
   return labels[value] ?? "نامشخص";
 }
 
@@ -102,69 +109,23 @@ function getAvailableActions(status: number) {
   switch (status) {
     case TEACHER_STATUS.Pending:
       return [
-        {
-          key: "activate" as const,
-          label: "فعال‌سازی",
-          icon: CheckCircle2,
-          className:
-            "border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/40",
-        },
-        {
-          key: "block" as const,
-          label: "مسدودسازی",
-          icon: Ban,
-          className:
-            "border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/40",
-        },
+        { key: "activate" as const, label: "فعال‌سازی", icon: CheckCircle2, className: "border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/40" },
+        { key: "block" as const, label: "مسدودسازی", icon: Ban, className: "border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/40" },
       ];
-
     case TEACHER_STATUS.Active:
       return [
-        {
-          key: "suspend" as const,
-          label: "تعلیق مدرس",
-          icon: PauseCircle,
-          className:
-            "border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-950/40",
-        },
-        {
-          key: "block" as const,
-          label: "مسدودسازی",
-          icon: Ban,
-          className:
-            "border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/40",
-        },
+        { key: "suspend" as const, label: "تعلیق هنرآموز", icon: PauseCircle, className: "border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-950/40" },
+        { key: "block" as const, label: "مسدودسازی", icon: Ban, className: "border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/40" },
       ];
-
     case TEACHER_STATUS.Suspended:
       return [
-        {
-          key: "activate" as const,
-          label: "فعال‌سازی مجدد",
-          icon: CheckCircle2,
-          className:
-            "border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/40",
-        },
-        {
-          key: "block" as const,
-          label: "مسدودسازی",
-          icon: Ban,
-          className:
-            "border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/40",
-        },
+        { key: "activate" as const, label: "فعال‌سازی مجدد", icon: CheckCircle2, className: "border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/40" },
+        { key: "block" as const, label: "مسدودسازی", icon: Ban, className: "border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/40" },
       ];
-
     case TEACHER_STATUS.Blocked:
       return [
-        {
-          key: "unblock" as const,
-          label: "رفع مسدودی",
-          icon: RotateCcw,
-          className:
-            "border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/40",
-        },
+        { key: "unblock" as const, label: "رفع مسدودی", icon: RotateCcw, className: "border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/40" },
       ];
-
     default:
       return [];
   }
@@ -172,93 +133,65 @@ function getAvailableActions(status: number) {
 
 function TeacherAvatar({ teacher }: { teacher: ITeacher }) {
   const initials = `${teacher.firstName?.[0] ?? ""}${teacher.lastName?.[0] ?? ""}`;
-
   if (teacher.profileImageUrl) {
-    return (
-      <img
-        src={teacher.profileImageUrl}
-        alt={`${teacher.firstName} ${teacher.lastName}`}
-        className="size-20 shrink-0 rounded-2xl object-cover"
-      />
-    );
+    return <img src={teacher.profileImageUrl} alt={`${teacher.firstName} ${teacher.lastName}`} className="size-20 shrink-0 rounded-2xl object-cover" />;
   }
-
-  return (
-    <div className="flex size-20 shrink-0 items-center justify-center rounded-2xl bg-elf/10 text-2xl font-bold text-elf dark:text-emerald-300">
-      {initials || "؟"}
-    </div>
-  );
+  return <div className="flex size-20 shrink-0 items-center justify-center rounded-2xl bg-elf/10 text-2xl font-bold text-elf dark:text-emerald-300">{initials || "؟"}</div>;
 }
 
-function InfoItem({
-  label,
-  value,
-  icon: Icon,
-}: {
-  label: string;
-  value: string;
-  icon: typeof UserRound;
-}) {
+function InfoItem({ label, value, icon: Icon }: { label: string; value: string; icon: typeof UserRound }) {
   return (
     <div className="flex min-w-0 items-start gap-3">
-      <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-        <Icon size={18} />
-      </div>
-
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"><Icon size={18} /></div>
       <div className="min-w-0">
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          {label}
-        </p>
-
-        <p className="mt-1 break-words text-sm font-medium text-gray-900 dark:text-gray-100">
-          {value}
-        </p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+        <p className="mt-1 break-words text-sm font-medium text-gray-900 dark:text-gray-100">{value}</p>
       </div>
     </div>
   );
 }
 
-function DetailSection({
-  title,
-  icon: Icon,
-  children,
-}: {
-  title: string;
-  icon: typeof UserRound;
-  children: React.ReactNode;
-}) {
+function DetailSection({ title, icon: Icon, children }: { title: string; icon: typeof UserRound; children: React.ReactNode }) {
   return (
     <section className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5">
       <div className="mb-5 flex items-center gap-2 border-b border-gray-100 pb-4 dark:border-gray-800">
-        <div className="flex size-9 items-center justify-center rounded-xl bg-elf/10 text-elf dark:text-emerald-300">
-          <Icon size={19} />
-        </div>
-
-        <h2 className="font-semibold text-gray-900 dark:text-white">
-          {title}
-        </h2>
+        <div className="flex size-9 items-center justify-center rounded-xl bg-elf/10 text-elf dark:text-emerald-300"><Icon size={19} /></div>
+        <h2 className="font-semibold text-gray-900 dark:text-white">{title}</h2>
       </div>
-
       {children}
     </section>
   );
 }
 
-function TeacherDetailsSkeleton() {
+function InstrumentCard({ item }: { item: ITeacherInstrumentDetails }) {
   return (
-    <div className="animate-pulse space-y-5">
-      <div className="h-40 rounded-2xl bg-gray-200 dark:bg-gray-800" />
-      <div className="h-56 rounded-2xl bg-gray-200 dark:bg-gray-800" />
-      <div className="h-48 rounded-2xl bg-gray-200 dark:bg-gray-800" />
-    </div>
+    <article className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          {item.imageUrl ? <img src={item.imageUrl} alt={item.instrumentName} className="size-12 shrink-0 rounded-xl object-cover" /> : <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-elf/10 text-elf"><Music2 size={21} /></div>}
+          <div className="min-w-0">
+            <h3 className="font-semibold text-gray-900 dark:text-white">{item.instrumentName}</h3>
+            {item.englishName && <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{item.englishName}</p>}
+          </div>
+        </div>
+        <span className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${item.isActive ? "bg-green-50 text-green-700 dark:bg-green-400/10 dark:text-green-300" : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"}`}>{item.isActive ? "فعال" : "غیرفعال"}</span>
+      </div>
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <InfoItem label="سطح تدریس" value={getTeachingLevelLabel(item.teachingLevel)} icon={GraduationCap} />
+        <InfoItem label="شروع تدریس" value={formatDate(item.startTeachingDate)} icon={CalendarDays} />
+        <InfoItem label="شهریه پیش‌فرض هر جلسه" value={item.defaultSessionFee == null ? "ثبت نشده" : `${formatNumber(item.defaultSessionFee)}`} icon={CreditCard} />
+        <InfoItem label="کتاب پیش‌فرض" value={item.defaultBookTitle || "تعیین نشده"} icon={BookOpen} />
+        {item.defaultBookAuthor && <InfoItem label="نویسنده کتاب" value={item.defaultBookAuthor} icon={BookOpen} />}
+      </div>
+    </article>
   );
 }
 
-export default function TeacherDetails({
-  teacherId,
-}: {
-  teacherId: string;
-}) {
+function TeacherDetailsSkeleton() {
+  return <div className="animate-pulse space-y-5"><div className="h-40 rounded-2xl bg-gray-200 dark:bg-gray-800" /><div className="h-56 rounded-2xl bg-gray-200 dark:bg-gray-800" /><div className="h-48 rounded-2xl bg-gray-200 dark:bg-gray-800" /></div>;
+}
+
+export default function TeacherDetails({ teacherId }: { teacherId: string }) {
   const [teacher, setTeacher] = useState<ITeacher | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -267,72 +200,28 @@ export default function TeacherDetails({
   const loadTeacher = useCallback(async () => {
     setLoading(true);
     setError(null);
-
     try {
-      const data = await apiFetch<ITeacher>(
-        `/api/teachers/${teacherId}`
-      );
-
+      const data = await apiFetch<ITeacher>(`/api/teachers/${teacherId}`);
       setTeacher(data);
-    } catch (error) {
-      console.error("Error loading teacher:", error);
-
-      setError(
-        error instanceof ApiError && error.status === 401
-          ? "نشست شما منقضی شده است. دوباره وارد شوید."
-          : error instanceof Error
-            ? error.message
-            : "دریافت اطلاعات مدرس ناموفق بود."
-      );
+    } catch (err) {
+      console.error("Error loading teacher:", err);
+      setError(err instanceof ApiError && err.status === 401 ? "نشست شما منقضی شده است. دوباره وارد شوید." : err instanceof Error ? err.message : "دریافت اطلاعات هنرآموز ناموفق بود.");
     } finally {
       setLoading(false);
     }
   }, [teacherId]);
 
-  useEffect(() => {
-    void loadTeacher();
-  }, [loadTeacher]);
+  useEffect(() => { void loadTeacher(); }, [loadTeacher]);
 
   const handleAction = async (action: TeacherAction) => {
     if (!teacher || busy) return;
-
-    const actionConfig: Record<
-      TeacherAction,
-      {
-        endpoint: string;
-        title: string;
-        message: string;
-        success: string;
-      }
-    > = {
-      activate: {
-        endpoint: "activate",
-        title: "فعال‌سازی مدرس؟",
-        message: "وضعیت این مدرس فعال شود؟",
-        success: "مدرس با موفقیت فعال شد.",
-      },
-      suspend: {
-        endpoint: "suspend",
-        title: "تعلیق مدرس؟",
-        message: "آیا از تعلیق این مدرس مطمئن هستید؟",
-        success: "مدرس با موفقیت تعلیق شد.",
-      },
-      block: {
-        endpoint: "block",
-        title: "مسدودسازی مدرس؟",
-        message: "آیا از مسدودسازی این مدرس مطمئن هستید؟",
-        success: "مدرس با موفقیت مسدود شد.",
-      },
-      unblock: {
-        endpoint: "unblock",
-        title: "رفع مسدودی مدرس؟",
-        message: "آیا از رفع مسدودی این مدرس مطمئن هستید؟",
-        success: "مسدودی مدرس با موفقیت برداشته شد.",
-      },
+    const actionConfig: Record<TeacherAction, { endpoint: string; title: string; message: string; success: string }> = {
+      activate: { endpoint: "activate", title: "فعال‌سازی هنرآموز؟", message: "وضعیت این هنرآموز فعال شود؟", success: "هنرآموز با موفقیت فعال شد." },
+      suspend: { endpoint: "suspend", title: "تعلیق هنرآموز؟", message: "آیا از تعلیق این هنرآموز مطمئن هستید؟", success: "هنرآموز با موفقیت تعلیق شد." },
+      block: { endpoint: "block", title: "مسدودسازی هنرآموز؟", message: "آیا از مسدودسازی این هنرآموز مطمئن هستید؟", success: "هنرآموز با موفقیت مسدود شد." },
+      unblock: { endpoint: "unblock", title: "رفع مسدودی هنرآموز؟", message: "آیا از رفع مسدودی این هنرآموز مطمئن هستید؟", success: "مسدودی هنرآموز با موفقیت برداشته شد." },
     };
-
     const config = actionConfig[action];
-
     const result = await Swal.fire({
       title: config.title,
       text: `${teacher.firstName} ${teacher.lastName} — ${config.message}`,
@@ -343,248 +232,104 @@ export default function TeacherDetails({
       reverseButtons: true,
       buttonsStyling: false,
       customClass: {
-        popup:
-          "rounded-2xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900",
+        popup: "rounded-2xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900",
         title: "text-lg font-semibold dark:text-white",
         htmlContainer: "text-sm dark:text-gray-300",
         actions: "gap-2",
-        confirmButton:
-          "rounded-xl bg-elf px-4 py-2.5 text-sm font-semibold text-white",
-        cancelButton:
-          "rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-200",
+        confirmButton: "rounded-xl bg-elf px-4 py-2.5 text-sm font-semibold text-white",
+        cancelButton: "rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-200",
       },
     });
-
     if (!result.isConfirmed) return;
-
     setBusy(true);
-
     try {
-      await apiFetch<unknown>(
-        `/api/teachers/${teacher.id}/${config.endpoint}`,
-        { method: "PATCH" }
-      );
-
+      await apiFetch<unknown>(`/api/teachers/${teacher.id}/${config.endpoint}`, { method: "PATCH" });
       await loadTeacher();
-
-      await Swal.fire({
-        title: "انجام شد",
-        text: config.success,
-        icon: "success",
-        confirmButtonText: "متوجه شدم",
-        buttonsStyling: false,
-        customClass: {
-          popup:
-            "rounded-2xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900",
-          title: "text-lg font-semibold dark:text-white",
-          htmlContainer: "text-sm dark:text-gray-300",
-          confirmButton:
-            "rounded-xl bg-elf px-4 py-2.5 text-sm font-semibold text-white",
-        },
-      });
-    } catch (error) {
-      await Swal.fire({
-        title: "عملیات ناموفق بود",
-        text:
-          error instanceof ApiError && error.status === 401
-            ? "نشست شما منقضی شده است. دوباره وارد شوید."
-            : error instanceof Error
-              ? error.message
-              : "اجرای عملیات با خطا مواجه شد.",
-        icon: "error",
-        confirmButtonText: "متوجه شدم",
-      });
+      await Swal.fire({ title: "انجام شد", text: config.success, icon: "success", confirmButtonText: "متوجه شدم" });
+    } catch (err) {
+      await Swal.fire({ title: "عملیات ناموفق بود", text: err instanceof ApiError && err.status === 401 ? "نشست شما منقضی شده است. دوباره وارد شوید." : err instanceof Error ? err.message : "اجرای عملیات با خطا مواجه شد.", icon: "error", confirmButtonText: "متوجه شدم" });
     } finally {
       setBusy(false);
     }
   };
 
-  const availableActions = teacher
-    ? getAvailableActions(teacher.status)
-    : [];
+  const availableActions = teacher ? getAvailableActions(teacher.status) : [];
 
   return (
-    <section
-      dir="rtl"
-      className="mx-auto w-full max-w-[1400px] space-y-6 px-3 pb-8 sm:px-5 lg:px-8"
-    >
-      {/* Breadcrumb */}
+    <section dir="rtl" className="mx-auto w-full max-w-[1400px] space-y-6 px-3 pb-8 sm:px-5 lg:px-8">
       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-        <Link href="/dashboard" className="transition hover:text-elf">
-          داشبورد
-        </Link>
-
-        <span>/</span>
-
-        <Link
-          href="/dashboard/teachers"
-          className="transition hover:text-elf"
-        >
-          مدرس‌ها
-        </Link>
-
-        <span>/</span>
-
-        <span className="text-gray-700 dark:text-gray-200">
-          جزئیات مدرس
-        </span>
+        <Link href="/dashboard" className="transition hover:text-elf">داشبورد</Link><span>/</span>
+        <Link href="/dashboard/students" className="transition hover:text-elf">هنرآموزان</Link><span>/</span>
+        <span className="text-gray-700 dark:text-gray-200">جزئیات هنرآموز</span>
       </div>
 
-      {loading ? (
-        <TeacherDetailsSkeleton />
-      ) : error || !teacher ? (
+      {loading ? <TeacherDetailsSkeleton /> : error || !teacher ? (
         <div className="rounded-2xl border border-gray-200 bg-white px-5 py-14 text-center dark:border-gray-800 dark:bg-gray-900">
           <AlertCircle className="mx-auto text-red-500" size={30} />
-
-          <h2 className="mt-4 font-semibold text-gray-900 dark:text-white">
-            دریافت اطلاعات مدرس ناموفق بود
-          </h2>
-
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            {error ?? "مدرس موردنظر پیدا نشد."}
-          </p>
-
-          <button
-            type="button"
-            onClick={() => void loadTeacher()}
-            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-elf px-4 py-2.5 text-sm font-semibold text-white"
-          >
-            <RefreshCw size={16} />
-            تلاش مجدد
-          </button>
+          <h2 className="mt-4 font-semibold text-gray-900 dark:text-white">دریافت اطلاعات هنرآموز ناموفق بود</h2>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{error ?? "هنرآموز موردنظر پیدا نشد."}</p>
+          <button type="button" onClick={() => void loadTeacher()} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-elf px-4 py-2.5 text-sm font-semibold text-white"><RefreshCw size={16} />تلاش مجدد</button>
         </div>
       ) : (
         <>
-          {/* Profile Header */}
           <section className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-4">
                 <TeacherAvatar teacher={teacher} />
-
                 <div className="min-w-0">
-                  <h1 className="text-lg font-bold text-gray-900 dark:text-white sm:text-2xl">
-                    {teacher.firstName} {teacher.lastName}
-                  </h1>
-
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    کد پرسنلی: {teacher.personnelCode}
-                  </p>
-
-                  <div className="mt-3">
-                    <span
-                      className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset ${getStatusClass(
-                        teacher.status
-                      )}`}
-                    >
-                      {getStatusLabel(teacher.status)}
-                    </span>
-                  </div>
+                  <h1 className="text-lg font-bold text-gray-900 dark:text-white sm:text-2xl">{teacher.firstName} {teacher.lastName}</h1>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">کد پرسنلی: {teacher.personnelCode}</p>
+                  <div className="mt-3"><span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset ${getStatusClass(teacher.status)}`}>{getStatusLabel(teacher.status)}</span></div>
                 </div>
               </div>
-
               <div className="flex flex-wrap items-center gap-2">
-                <Link
-                  href={`/dashboard/teachers/${teacher.id}/edit`}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 text-sm font-medium text-gray-700 transition hover:border-elf/30 hover:bg-elf/5 hover:text-elf dark:border-gray-700 dark:text-gray-200 dark:hover:bg-elf/10 dark:hover:text-emerald-300"
-                >
-                  <Pencil size={16} />
-                  ویرایش اطلاعات
-                </Link>
-
-                {availableActions.map((action) => {
-                  const Icon = action.icon;
-
-                  return (
-                    <button
-                      key={action.key}
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void handleAction(action.key)}
-                      className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${action.className}`}
-                    >
-                      <Icon size={16} />
-                      {action.label}
-                    </button>
-                  );
-                })}
+                <Link href={`/dashboard/teachers/${teacher.id}/edit`} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 text-sm font-medium text-gray-700 transition hover:border-elf/30 hover:bg-elf/5 hover:text-elf dark:border-gray-700 dark:text-gray-200 dark:hover:bg-elf/10 dark:hover:text-emerald-300"><Pencil size={16} />ویرایش اطلاعات</Link>
+                {availableActions.map((action) => { const Icon = action.icon; return <button key={action.key} type="button" disabled={busy} onClick={() => void handleAction(action.key)} className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${action.className}`}><Icon size={16} />{action.label}</button>; })}
               </div>
             </div>
           </section>
 
-          {/* Personal Information */}
-          <DetailSection title="اطلاعات فردی" icon={UserRound}>
+          <DetailSection title="اطلاعات هویتی و تماس" icon={UserRound}>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              <InfoItem
-                label="نام"
-                value={teacher.firstName || "ثبت نشده"}
-                icon={UserRound}
-              />
-
-              <InfoItem
-                label="نام خانوادگی"
-                value={teacher.lastName || "ثبت نشده"}
-                icon={UserRound}
-              />
-
-              <InfoItem
-                label="ایمیل"
-                value={teacher.email || "ثبت نشده"}
-                icon={Mail}
-              />
+              <InfoItem label="نام" value={teacher.firstName || "ثبت نشده"} icon={UserRound} />
+              <InfoItem label="نام خانوادگی" value={teacher.lastName || "ثبت نشده"} icon={UserRound} />
+              <InfoItem label="کد ملی" value={teacher.nationalIdentificationNumber || "ثبت نشده"} icon={CreditCard} />
+              <InfoItem label="تاریخ تولد" value={formatDate(teacher.birthDate)} icon={CalendarDays} />
+              <InfoItem label="جنسیت" value={getGenderLabel(teacher.gender)} icon={VenusAndMars} />
+              <InfoItem label="ملیت" value={teacher.nationality || "ثبت نشده"} icon={MapPin} />
+              <InfoItem label="شماره همراه" value={teacher.mobile || "ثبت نشده"} icon={Phone} />
+              <InfoItem label="ایمیل" value={teacher.email || "ثبت نشده"} icon={Mail} />
+              <InfoItem label="نشانی" value={teacher.address || "ثبت نشده"} icon={MapPin} />
             </div>
           </DetailSection>
 
-          {/* Professional Information */}
           <DetailSection title="اطلاعات حرفه‌ای" icon={GraduationCap}>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              <InfoItem
-                label="کد پرسنلی"
-                value={teacher.personnelCode || "ثبت نشده"}
-                icon={UserRound}
-              />
-
-              <InfoItem
-                label="تاریخ استخدام"
-                value={formatDate(teacher.employmentDate)}
-                icon={CalendarDays}
-              />
-
-              <InfoItem
-                label="تحصیلات"
-                value={getEducationLabel(teacher.education)}
-                icon={GraduationCap}
-              />
-
-              <InfoItem
-                label="سابقه تدریس"
-                value={
-                  teacher.experienceYears == null
-                    ? "ثبت نشده"
-                    : `${formatNumber(teacher.experienceYears)} سال`
-                }
-                icon={CalendarDays}
-              />
+              <InfoItem label="کد پرسنلی" value={teacher.personnelCode || "ثبت نشده"} icon={UserRound} />
+              <InfoItem label="تاریخ استخدام" value={formatDate(teacher.employmentDate)} icon={CalendarDays} />
+              <InfoItem label="تحصیلات" value={getEducationLabel(teacher.education)} icon={GraduationCap} />
+              <InfoItem label="سابقه تدریس" value={teacher.experienceYears == null ? "ثبت نشده" : `${formatNumber(teacher.experienceYears)} سال`} icon={CalendarDays} />
+              <InfoItem label="نمایش در وب‌سایت" value={teacher.isVisibleOnWebsite ? "بله" : "خیر"} icon={UserRound} />
             </div>
-
-            <div className="mt-6 border-t border-gray-100 pt-5 dark:border-gray-800">
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                بیوگرافی
-              </p>
-
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-gray-700 dark:text-gray-300">
-                {teacher.biography || "بیوگرافی ثبت نشده است."}
-              </p>
+            <div className="mt-6 grid grid-cols-1 gap-5 border-t border-gray-100 pt-5 dark:border-gray-800 md:grid-cols-2">
+              <div><p className="text-xs text-gray-500 dark:text-gray-400">بیوگرافی هنرآموز</p><p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-gray-700 dark:text-gray-300">{teacher.biography || "بیوگرافی ثبت نشده است."}</p></div>
+              <div><p className="text-xs text-gray-500 dark:text-gray-400">معرفی کاربر</p><p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-gray-700 dark:text-gray-300">{teacher.userBiography || "متنی ثبت نشده است."}</p></div>
             </div>
+          </DetailSection>
+
+          <DetailSection title="سازها و مهارت‌های تدریس" icon={Music2}>
+            {!teacher.instruments?.length ? (
+              <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400"><Music2 size={28} className="mx-auto mb-3 opacity-60" />هنوز سازی برای این هنرآموز ثبت نشده است.</div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                {teacher.instruments.map((item) => <InstrumentCard key={item.id} item={item} />)}
+              </div>
+            )}
           </DetailSection>
         </>
       )}
 
-      {busy && (
-        <div className="fixed bottom-5 left-5 z-50 flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-lg dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
-          <LoaderCircle size={17} className="animate-spin text-elf" />
-          در حال اجرای عملیات...
-        </div>
-      )}
+      {busy && <div className="fixed bottom-5 left-5 z-50 flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 shadow-lg dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"><LoaderCircle size={17} className="animate-spin text-elf" />در حال اجرای عملیات...</div>}
     </section>
   );
 }
