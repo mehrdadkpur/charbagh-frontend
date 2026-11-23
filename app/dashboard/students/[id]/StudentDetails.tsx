@@ -13,6 +13,7 @@ import {
   GraduationCap,
   LoaderCircle,
   Mail,
+  MapPin,
   Pencil,
   PauseCircle,
   RefreshCw,
@@ -29,7 +30,7 @@ import {
 
 import { apiFetch } from "@/lib/apiFetch";
 import { ApiError } from "@/helper/ApiError";
-import type { IStudent } from "@/lib/types";
+import type { IStudent, IStudentDetails } from "@/lib/types";
 
 const STUDENT_STATUS = { Pending: 0, Active: 1, Suspended: 2, Blocked: 3 } as const;
 type StudentAction = "activate" | "suspend" | "block" | "unblock";
@@ -54,7 +55,6 @@ type StudentParentItem = {
 
 
 const parentApi = {
-  list: (studentId: string) => `/api/students/${studentId}/parents`,
   search: (term: string) => `/api/parents?search=${encodeURIComponent(term)}`,
   connect: "/api/studentParents",
   disconnect: (id: string) => `/api/studentParents/${id}`,
@@ -184,12 +184,6 @@ function relationshipLabel(value: StudentParentRelationship) {
   return RELATIONSHIPS.find((item) => item.value === value)?.label ?? "نامشخص";
 }
 
-function normalizeParentList(data: unknown): StudentParentItem[] {
-  if (Array.isArray(data)) return data as StudentParentItem[];
-  if (data && typeof data === "object" && "items" in data && Array.isArray((data as { items: unknown }).items)) return (data as { items: StudentParentItem[] }).items;
-  return [];
-}
-
 function normalizeAvailableParents(data: unknown): ParentSummary[] {
   if (Array.isArray(data)) return data as ParentSummary[];
   if (data && typeof data === "object" && "items" in data && Array.isArray((data as { items: unknown }).items)) return (data as { items: ParentSummary[] }).items;
@@ -197,7 +191,7 @@ function normalizeAvailableParents(data: unknown): ParentSummary[] {
 }
 
 export default function StudentDetails({ studentId }: { studentId: string }) {
-  const [student, setStudent] = useState<IStudent | null>(null);
+  const [student, setStudent] = useState<IStudentDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -220,7 +214,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiFetch<IStudent>(`/api/students/${studentId}`);
+      const data = await apiFetch<IStudentDetails>(`/api/students/${studentId}`);
       setStudent(data);
     } catch (err) {
       console.error("Error loading student:", err);
@@ -231,20 +225,32 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
   }, [studentId]);
 
   const loadParents = useCallback(async () => {
+    if (!student) return;
     setParentsLoading(true);
     setParentsError(null);
     try {
-      const data = await apiFetch<unknown>(parentApi.list(studentId));
-      setParents(normalizeParentList(data));
-      console.log(data);
-      
+      const items: StudentParentItem[] = (student.parents ?? []).map((item) => ({
+        id: item.id,
+        parentId: item.parentId,
+        relationship: item.relationship as StudentParentRelationship,
+        parent: {
+          id: item.parentId,
+          firstName: item.firstName,
+          lastName: item.lastName,
+          nationalIdentificationNumber: item.nationalIdentificationNumber,
+          mobile: item.mobile,
+          profileImageUrl: item.profileImageUrl,
+          status: undefined,
+        },
+      }));
+      setParents(items);
     } catch (err) {
       console.error("Error loading student parents:", err);
-      setParentsError(err instanceof ApiError && err.status === 401 ? "نشست شما منقضی شده است. دوباره وارد شوید." : err instanceof Error ? err.message : "دریافت فهرست والدین ناموفق بود.");
+      setParentsError(err instanceof Error ? err.message : "دریافت فهرست والدین ناموفق بود.");
     } finally {
       setParentsLoading(false);
     }
-  }, [studentId]);
+  }, [student]);
 
   useEffect(() => { void loadStudent(); }, [loadStudent]);
   useEffect(() => {
@@ -309,7 +315,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
       setParentModalOpen(false);
       setParentSearch("");
       setSelectedParentId("");
-      await loadParents();
+      await loadStudent();
       await Swal.fire({ title: "انجام شد", text: "والد با موفقیت به هنرآموز متصل شد.", icon: "success", confirmButtonText: "متوجه شدم" });
     } catch (err) {
       await Swal.fire({ title: "اتصال والد ناموفق بود", text: err instanceof Error ? err.message : "امکان اتصال والد وجود ندارد.", icon: "error", confirmButtonText: "متوجه شدم" });
@@ -322,7 +328,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
     setParentBusy(true);
     try {
       await apiFetch<unknown>(parentApi.disconnect(item.id), { method: "DELETE" });
-      await loadParents();
+      await loadStudent();
     } catch (err) {
       await Swal.fire({ title: "عملیات ناموفق بود", text: err instanceof Error ? err.message : "قطع ارتباط والد ناموفق بود.", icon: "error", confirmButtonText: "متوجه شدم" });
     } finally { setParentBusy(false); }
@@ -368,7 +374,11 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
               <InfoItem label="کد ملی" value={student.nationalIdentificationNumber || "ثبت نشده"} icon={ShieldCheck} />
               <InfoItem label="تاریخ تولد" value={formatDate(student.birthDate)} icon={CalendarDays} />
               <InfoItem label="سن" value={age === null ? "نامشخص" : `${age} سال`} icon={CalendarDays} />
+              <InfoItem label="جنسیت" value={student.gender === 0 ? "زن" : student.gender === 1 ? "مرد" : student.gender === 2 ? "سایر" : "نامشخص"} icon={UserRound} />
+              <InfoItem label="شماره همراه" value={student.mobile || "ثبت نشده"} icon={Phone} />
               <InfoItem label="ایمیل" value={student.email || "ثبت نشده"} icon={Mail} />
+              <InfoItem label="ملیت" value={student.nationality || "ثبت نشده"} icon={MapPin} />
+              <InfoItem label="نشانی" value={student.address || "ثبت نشده"} icon={MapPin} />
             </div>
           </DetailSection>
 
