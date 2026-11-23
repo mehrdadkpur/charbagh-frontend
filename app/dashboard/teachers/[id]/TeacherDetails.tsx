@@ -26,7 +26,7 @@ import {
 
 import { apiFetch } from "@/lib/apiFetch";
 import { ApiError } from "@/helper/ApiError";
-import type { ITeacher, ITeacherInstrumentDetails } from "@/lib/types";
+import type { ITeacherDetails, ITeacherInstrumentDetails } from "@/lib/types";
 
 const TEACHER_STATUS = { Pending: 0, Active: 1, Suspended: 2, Blocked: 3 } as const;
 type TeacherAction = "activate" | "suspend" | "block" | "unblock";
@@ -131,7 +131,7 @@ function getAvailableActions(status: number) {
   }
 }
 
-function TeacherAvatar({ teacher }: { teacher: ITeacher }) {
+function TeacherAvatar({ teacher }: { teacher: ITeacherDetails }) {
   const initials = `${teacher.firstName?.[0] ?? ""}${teacher.lastName?.[0] ?? ""}`;
   if (teacher.profileImageUrl) {
     return <img src={teacher.profileImageUrl} alt={`${teacher.firstName} ${teacher.lastName}`} className="size-20 shrink-0 rounded-2xl object-cover" />;
@@ -192,7 +192,7 @@ function TeacherDetailsSkeleton() {
 }
 
 export default function TeacherDetails({ teacherId }: { teacherId: string }) {
-  const [teacher, setTeacher] = useState<ITeacher | null>(null);
+  const [teacher, setTeacher] = useState<ITeacherDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -201,7 +201,7 @@ export default function TeacherDetails({ teacherId }: { teacherId: string }) {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiFetch<ITeacher>(`/api/teachers/${teacherId}`);
+      const data = await apiFetch<ITeacherDetails>(`/api/teachers/${teacherId}`);
       setTeacher(data);
     } catch (err) {
       console.error("Error loading teacher:", err);
