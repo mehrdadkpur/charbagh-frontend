@@ -8,6 +8,7 @@ import {
   Ban,
   CheckCircle2,
   GraduationCap,
+  CalendarDays,
   LoaderCircle,
   Mail,
   Pencil,
@@ -19,7 +20,7 @@ import {
 
 import { apiFetch } from "@/lib/apiFetch";
 import { ApiError } from "@/helper/ApiError";
-import type { IParent } from "@/lib/types";
+import type { IParentDetails, IParentStudentDetails } from "@/lib/types";
 import Image from "next/image";
 
 const PARENT_STATUS = {
@@ -138,7 +139,7 @@ function getAvailableActions(status: number) {
   }
 }
 
-function ParentAvatar({ parent }: { parent: IParent }) {
+function ParentAvatar({ parent }: { parent: IParentDetails }) {
   const initials = `${parent.firstName?.[0] ?? ""}${parent.lastName?.[0] ?? ""}`;
 
   if (parent.profileImageUrl) {
@@ -214,6 +215,89 @@ function DetailSection({
   );
 }
 
+function formatStudentDate(value?: string | null) {
+  if (!value) return "ثبت نشده";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "ثبت نشده";
+  return new Intl.DateTimeFormat("fa-IR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+}
+
+function getStudentStatusLabel(status: number) {
+  const labels: Record<number, string> = {
+    0: "در انتظار تأیید",
+    1: "فعال",
+    2: "تعلیق‌شده",
+    3: "مسدودشده",
+  };
+  return labels[status] ?? "نامشخص";
+}
+
+function getRelationshipLabel(value: number) {
+  const labels: Record<number, string> = {
+    1: "پدر",
+    2: "مادر",
+    3: "قیم",
+    4: "پدربزرگ",
+    5: "مادربزرگ",
+    6: "برادر",
+    7: "خواهر",
+    99: "سایر",
+  };
+  return labels[value] ?? "نامشخص";
+}
+
+function ChildCard({ child }: { child: IParentStudentDetails }) {
+  return (
+    <Link
+      href={`/dashboard/students/${child.studentId}`}
+      className="group block rounded-xl border border-gray-200 p-4 transition hover:border-elf/40 hover:bg-elf/[0.03] dark:border-gray-700 dark:hover:bg-elf/10"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          {child.profileImageUrl ? (
+            <Image
+              src={child.profileImageUrl}
+              alt={`${child.firstName} ${child.lastName}`}
+              width={52}
+              height={52}
+              className="size-13 shrink-0 rounded-xl object-cover"
+            />
+          ) : (
+            <div className="flex size-13 shrink-0 items-center justify-center rounded-xl bg-elf/10 text-lg font-bold text-elf dark:text-emerald-300">
+              {child.firstName?.[0] ?? ""}{child.lastName?.[0] ?? ""}
+            </div>
+          )}
+          <div className="min-w-0">
+            <h3 className="truncate font-semibold text-gray-900 group-hover:text-elf dark:text-white">
+              {child.firstName} {child.lastName}
+            </h3>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              کد هنرآموزی: {child.studentCode}
+            </p>
+          </div>
+        </div>
+        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${child.status === 1 ? "bg-green-50 text-green-700 dark:bg-green-400/10 dark:text-green-300" : child.status === 0 ? "bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300" : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"}`}>
+          {getStudentStatusLabel(child.status)}
+        </span>
+      </div>
+      <div className="mt-4 grid grid-cols-1 gap-3 border-t border-gray-100 pt-3 text-sm dark:border-gray-800 sm:grid-cols-2">
+        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+          <CalendarDays size={16} className="text-gray-400" />
+          <span className="text-xs">تاریخ تولد: {formatStudentDate(child.birthDate)}</span>
+        </div>
+        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+          <UserRound size={16} className="text-gray-400" />
+          <span className="text-xs">نسبت: {getRelationshipLabel(child.relationship)}</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 function ParentDetailsSkeleton() {
   return (
     <div className="animate-pulse space-y-5">
@@ -226,7 +310,7 @@ function ParentDetailsSkeleton() {
 
 export default function ParentDetails({parentId,}: {parentId: string;}) {
   
-  const [parent, setParent] = useState<IParent | null>(null);
+  const [parent, setParent] = useState<IParentDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -236,7 +320,7 @@ export default function ParentDetails({parentId,}: {parentId: string;}) {
     setError(null);
 
     try {
-      const data = await apiFetch<IParent>(
+      const data = await apiFetch<IParentDetails>(
         `/api/parents/${parentId}`
       );
 
@@ -491,6 +575,28 @@ export default function ParentDetails({parentId,}: {parentId: string;}) {
                 icon={Mail}
               />
             </div>
+          </DetailSection>
+
+          <DetailSection title="فرزندان و هنرآموزان تحت سرپرستی" icon={GraduationCap}>
+            {!parent.children?.length ? (
+              <div className="py-8 text-center">
+                <GraduationCap size={30} className="mx-auto mb-3 text-gray-400" />
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  هنوز هیچ هنرآموزی به این والد یا سرپرست متصل نشده است.
+                </p>
+              </div>
+            ) : (
+              <>
+                <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+                  تعداد فرزندان و هنرآموزان متصل‌شده: {parent.children.length.toLocaleString("fa-IR")}
+                </p>
+                <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                  {parent.children.map((child) => (
+                    <ChildCard key={child.studentId} child={child} />
+                  ))}
+                </div>
+              </>
+            )}
           </DetailSection>
 
           {/* Professional Information */}
