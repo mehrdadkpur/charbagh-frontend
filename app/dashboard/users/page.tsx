@@ -142,9 +142,7 @@ export default function UsersPage() {
                 <UserStatusBadge status={user.status} />
               </Link>)}
             </div>
-            <div className="border-t border-gray-100 px-4 py-3 dark:border-gray-800">
-              <UsersPagination currentPage={page} totalPages={totalPages} totalItems={filtered.length} pageSize={PAGE_SIZE} onPageChange={setPage} />
-            </div>
+            <UsersPagination currentPage={page} totalPages={totalPages} totalItems={filtered.length} pageSize={PAGE_SIZE} onPageChange={setPage} />
           </>
         )}
       </section>
