@@ -8,7 +8,7 @@ import Loading from "@/app/loading";
 import { fetchUser } from "@/lib/requests";
 import { apiFetch, ApiError } from "@/lib/apiFetch";
 import { validateForm } from "@/lib/ValidateForm";
-import { IUser, IUserDetails } from "@/lib/types";
+import { IUser } from "@/lib/types";
 import UserForm, { UserFormValues, INationalityOption} from "@/app/ui/components/UserForm";
 
 const INITIAL_FIELDS: UserFormValues = {
