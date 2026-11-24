@@ -48,12 +48,12 @@ function InfoRow({icon,label,value,ltr=false,wide=false}:{icon:ReactNode;label:s
   </div>;
 }
 
-function ProfileCard({title,profile,href,icon}:{title:string;profile:IUserProfileDetails;href:string;icon:ReactNode}) {
+function ProfileCard({title,profile,href,icon,statusLabels}:{title:string;profile:IUserProfileDetails;href:string;icon:ReactNode;statusLabels?:Record<number,string>}) {
   return <Link href={href} className="rounded-xl border border-gray-200 p-4 transition hover:border-elf/40 hover:bg-elf/5 dark:border-gray-700 dark:hover:bg-elf/10">
     <div className="flex items-center gap-3">
       <div className="flex size-10 items-center justify-center rounded-xl bg-elf/10 text-elf dark:text-emerald-300">{icon}</div>
       <div className="min-w-0 flex-1"><p className="font-semibold text-gray-900 dark:text-white">{title}</p><p className="mt-1 text-xs text-gray-500">کد: {profile.code || "—"}</p></div>
-      <span className={`rounded-full px-2.5 py-1 text-xs ${profile.status===1?"bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300":"bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"}`}>{profileStatusLabel(profile.status)}</span>
+      <span className={`rounded-full px-2.5 py-1 text-xs ${profile.status===1?"bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300":"bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"}`}>{statusLabels?.[profile.status] ?? profileStatusLabel(profile.status)}</span>
     </div>
   </Link>;
 }
@@ -147,7 +147,7 @@ export default function UserDetailsPage() {
         {details.student && <ProfileCard title="هنرآموز" profile={details.student} href={`/dashboard/students/${details.student.id}`} icon={<GraduationCap size={19}/>}/>}
         {details.teacher && <ProfileCard title="مدرس" profile={details.teacher} href={`/dashboard/teachers/${details.teacher.id}`} icon={<BriefcaseBusiness size={19}/>}/>}
         {details.parent && <ProfileCard title="والد / سرپرست" profile={details.parent} href={`/dashboard/parents/${details.parent.id}`} icon={<UsersRound size={19}/>}/>}
-        {details.staff && <ProfileCard title="کارمند" profile={details.staff} href={`/dashboard/staffs/${details.staff.id}`} icon={<ShieldCheck size={19}/>}/>}
+        {details.staff && <ProfileCard title="کارمند" profile={details.staff} href={`/dashboard/staffs/${details.staff.id}`} icon={<ShieldCheck size={19}/>} statusLabels={{1:"فعال",2:"در مرخصی",3:"قطع همکاری"}}/>}
         {!details.student&&!details.teacher&&!details.parent&&!details.staff&&<p className="rounded-xl bg-gray-50 p-4 text-sm text-gray-500 dark:bg-gray-950 sm:col-span-2 lg:col-span-3">برای این حساب هنوز پروفایل تخصصی ایجاد نشده است.</p>}
       </InfoSection>
 
