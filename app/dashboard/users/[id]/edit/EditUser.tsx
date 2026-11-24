@@ -76,7 +76,7 @@ const EditUser = () => {
           address: account.address ?? "",
           bio: account.bio ?? "",
           nationalityId:
-            account.nationalityId ?? account.nationality?.id ?? "",
+            account.nationality?.id ?? "",
         });
       } catch (err) {
         if (controller.signal.aborted) return;
