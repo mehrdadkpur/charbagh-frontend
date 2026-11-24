@@ -342,7 +342,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
   const availableActions = student ? getAvailableActions(student.status) : [];
 
   return (
-    <section dir="rtl" className="mx-auto w-full max-w-[1400px] space-y-6 px-3 pb-8 sm:px-5 lg:px-8">
+    <section dir="rtl" className="mx-auto w-full max-w-[1600px] space-y-6 px-3 pb-8 sm:px-5 lg:px-8">
       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
         <Link href="/dashboard" className="transition hover:text-elf">داشبورد</Link><span>/</span>
         <Link href="/dashboard/students" className="transition hover:text-elf">هنرآموزان</Link><span>/</span>
