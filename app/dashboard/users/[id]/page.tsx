@@ -112,7 +112,7 @@ export default function UserDetailsPage() {
   const actionLabels = {activate:"فعال‌سازی",suspend:"تعلیق",block:"غیرفعال‌سازی",unblock:"رفع مسدودی"};
 
   return <main dir="rtl" className="min-h-screen bg-gray-50 px-3 py-6 dark:bg-gray-950 sm:px-6 lg:px-8">
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div><div className="mb-2 flex items-center gap-2 text-sm text-gray-500"><Link href="/dashboard/users" className="hover:text-elf">کاربران</Link><span>/</span><span className="text-gray-800 dark:text-gray-200">جزئیات کاربر</span></div><h1 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">پرونده کاربر</h1><p className="mt-1 text-sm text-gray-500">اطلاعات هویتی، پروفایل‌های سازمانی و دسترسی‌های کاربر</p></div>
         <div className="flex flex-wrap gap-2">
