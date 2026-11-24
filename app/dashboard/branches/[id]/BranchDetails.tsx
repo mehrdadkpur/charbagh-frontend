@@ -213,7 +213,7 @@ export default function BranchDetails({ branchId }: { branchId: string }) {
 
   const activeUsers = branch.activeUserCount ?? users.filter(u => u.isActive ?? u.status === 1).length;
 
-  return <div className="space-y-6" dir="rtl">
+  return <div className="mx-auto w-full max-w-[1600px] space-y-6 px-3 pb-8 sm:px-5 lg:px-8" dir="rtl">
     {/* Header */}
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 items-start gap-3">
