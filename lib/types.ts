@@ -230,7 +230,7 @@ export interface IParent {
   email: string | null;
   profileImageUrl: string | null;
   status: number;
-  bio: string;
+  bio: string | null;
 }
 
 export interface IParentStudentDetails {
