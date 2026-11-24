@@ -178,7 +178,7 @@ export default function BranchesPage() {
 
 
   return (
-    <div dir="rtl" className="min-h-screen space-y-6 bg-gray-50 p-4 dark:bg-gray-950 sm:p-6">
+    <div dir="rtl" className="mx-auto w-full max-w-[1600px] space-y-6 px-3 pb-8 sm:px-5 lg:px-8">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
