@@ -233,6 +233,21 @@ export interface IParent {
   bio: string;
 }
 
+export interface IParentStudentDetails {
+  studentId: string;
+  firstName: string;
+  lastName: string;
+  studentCode: string;
+  birthDate: string | null;
+  profileImageUrl: string | null;
+  status: number;
+  relationship: number;
+}
+
+export interface IParentDetails extends IParent {
+  children: IParentStudentDetails[];
+}
+
 export interface ICreateTeacherRequest {
   userId: string;
   employmentDate: string;
