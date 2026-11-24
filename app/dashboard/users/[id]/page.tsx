@@ -74,7 +74,7 @@ export default function UserDetailsPage() {
     setLoading(true); setError(null);
     try {
       const response = await fetchUser(id);
-      setDetails(response as unknown as IUserDetails);
+      setDetails(response);
     } catch (err) {
       setError(err instanceof ApiError && err.status===401 ? "نشست شما منقضی شده است. دوباره وارد شوید." : err instanceof Error ? err.message : "دریافت اطلاعات کاربر ناموفق بود.");
     } finally { setLoading(false); }
