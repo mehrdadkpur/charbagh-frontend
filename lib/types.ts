@@ -266,3 +266,39 @@ export interface ICreateStaffRequest {
 export interface ICreateParentRequest {
   userId: string;
 }
+
+
+export interface IUserRoleDetails {
+  id: string;
+  name: string;
+  displayName: string;
+  isActive: boolean;
+  assignedAt: string;
+}
+
+export interface IUserBranchDetails {
+  id: string;
+  branchId: string;
+  branchName: string;
+  branchCode: string | null;
+  isDefault: boolean;
+  isActive: boolean;
+  assignedAt: string;
+  roles: IUserRoleDetails[];
+}
+
+export interface IUserProfileDetails {
+  id: string;
+  code: string;
+  status: number;
+  secondaryCode?: string | null;
+}
+
+export interface IUserDetails {
+  user: IUser;
+  student: IUserProfileDetails | null;
+  teacher: IUserProfileDetails | null;
+  parent: IUserProfileDetails | null;
+  staff: IUserProfileDetails | null;
+  branches: IUserBranchDetails[];
+}
