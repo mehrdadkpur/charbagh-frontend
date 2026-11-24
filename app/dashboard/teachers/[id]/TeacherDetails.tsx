@@ -406,7 +406,7 @@ export default function TeacherDetails({
   return (
     <section
       dir="rtl"
-      className="mx-auto w-full max-w-[1400px] space-y-6 px-3 pb-8 sm:px-5 lg:px-8"
+      className="mx-auto w-full max-w-[1600px] space-y-6 px-3 pb-8 sm:px-5 lg:px-8"
     >
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
