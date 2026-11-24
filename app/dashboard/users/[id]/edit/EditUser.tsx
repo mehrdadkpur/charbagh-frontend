@@ -8,7 +8,7 @@ import Loading from "@/app/loading";
 import { fetchUser } from "@/lib/requests";
 import { apiFetch, ApiError } from "@/lib/apiFetch";
 import { validateForm } from "@/lib/ValidateForm";
-import { IUser } from "@/lib/types";
+import { IUserDetailsBase } from "@/lib/types";
 import UserForm, { UserFormValues, INationalityOption} from "@/app/ui/components/UserForm";
 
 const INITIAL_FIELDS: UserFormValues = {
@@ -28,7 +28,7 @@ const EditUser = () => {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
-  const [user, setUser] = useState<IUser | null>(null);
+  const [user, setUser] = useState<IUserDetailsBase | null>(null);
   const [nationalities, setNationalities] = useState<INationalityOption[]>([]);
   const [fields, setFields] = useState<UserFormValues>(INITIAL_FIELDS);
 
@@ -61,7 +61,7 @@ const EditUser = () => {
         if (controller.signal.aborted) return;
 
         const account = userData.user;
-        setUser(account as IUser);
+        setUser(account);
         setNationalities(nationalityData);
 
         setFields({
