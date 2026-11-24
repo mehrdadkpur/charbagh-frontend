@@ -296,6 +296,9 @@ export interface IUserProfileDetails {
 
 export interface IUserDetails {
   user: IUser;
+  mobileConfirmed: boolean;
+  emailConfirmed: boolean;
+  lastLoginAt: string | null;
   student: IUserProfileDetails | null;
   teacher: IUserProfileDetails | null;
   parent: IUserProfileDetails | null;
