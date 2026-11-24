@@ -327,7 +327,7 @@ export async function fetchAdminUser(id: string) {
     
     if (!res.ok) {
       const errorData = await res.json().catch(() => null);
-      throw new Error(errorData?.error || `Failed to fetch teacher with ID ${id}`);
+      throw new Error(errorData?.error || `Failed to fetch user with ID ${id}`);
     }
     
     return await res.json();
