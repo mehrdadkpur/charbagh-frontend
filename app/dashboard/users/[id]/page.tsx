@@ -163,7 +163,7 @@ export default function UserDetailsPage() {
       <InfoSection title="اطلاعات تکمیلی" description="توضیحات ثبت‌شده در پروفایل کاربر" icon={<FileText size={20}/>}>
         <InfoRow icon={<FileText size={16}/>} label="بیوگرافی" value={user.bio} wide/>
         <InfoRow icon={<CalendarDays size={16}/>} label="تاریخ ایجاد حساب" value={formatDate(user.createdAt)}/>
-        <InfoRow icon={<Hash size={16}/>} label="شناسه کاربر" value={user.id} ltr/>
+        <InfoRow icon={<Hash size={16}/>} label="شناسه کاربر" value={user.id} ltr/>\n        <InfoRow icon={<CheckCircle2 size={16}/>} label="تأیید شماره موبایل" value={details.mobileConfirmed?"تأیید شده":"تأیید نشده"}/>\n        <InfoRow icon={<CheckCircle2 size={16}/>} label="تأیید ایمیل" value={details.emailConfirmed?"تأیید شده":"تأیید نشده"}/>\n        <InfoRow icon={<Clock3 size={16}/>} label="آخرین ورود" value={formatDate(details.lastLoginAt)}/>
       </InfoSection>
     </div>
   </main>;
