@@ -143,7 +143,7 @@ export default function UsersPage() {
               </Link>)}
             </div>
             <div className="border-t border-gray-100 px-4 py-3 dark:border-gray-800">
-              <UsersPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+              <UsersPagination currentPage={page} totalPages={totalPages} totalItems={filtered.length} pageSize={PAGE_SIZE} onPageChange={setPage} />
             </div>
           </>
         )}
