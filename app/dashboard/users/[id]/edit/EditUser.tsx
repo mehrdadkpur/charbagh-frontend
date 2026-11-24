@@ -8,7 +8,7 @@ import Loading from "@/app/loading";
 import { fetchUser } from "@/lib/requests";
 import { apiFetch, ApiError } from "@/lib/apiFetch";
 import { validateForm } from "@/lib/ValidateForm";
-import { IUser } from "@/lib/types";
+import { IUser, IUserDetails } from "@/lib/types";
 import UserForm, { UserFormValues, INationalityOption} from "@/app/ui/components/UserForm";
 
 const INITIAL_FIELDS: UserFormValues = {
@@ -60,22 +60,23 @@ const EditUser = () => {
 
         if (controller.signal.aborted) return;
 
-        setUser(userData);
+        const account = (userData as IUserDetails).user;
+        setUser(account as IUser);
         setNationalities(nationalityData);
 
         setFields({
-          firstName: userData.firstName ?? "",
-          lastName: userData.lastName ?? "",
-          mobile: userData.mobile ?? "",
+          firstName: account.firstName ?? "",
+          lastName: account.lastName ?? "",
+          mobile: account.mobile ?? "",
           nationalIdentificationNumber:
-            userData.nationalIdentificationNumber ?? "",
-          email: userData.email ?? "",
-          birthDate: toDateInputValue(userData.birthDate),
-          gender: Number(userData.gender ?? 0),
-          address: userData.address ?? "",
-          bio: userData.bio ?? "",
+            account.nationalIdentificationNumber ?? "",
+          email: account.email ?? "",
+          birthDate: toDateInputValue(account.birthDate),
+          gender: Number(account.gender ?? 0),
+          address: account.address ?? "",
+          bio: account.bio ?? "",
           nationalityId:
-            userData.nationalityId ?? userData.nationality?.id ?? "",
+            account.nationalityId ?? account.nationality?.id ?? "",
         });
       } catch (err) {
         if (controller.signal.aborted) return;
