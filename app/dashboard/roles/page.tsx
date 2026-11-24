@@ -394,7 +394,7 @@ export default function Roles() {
   return (
     <section
       dir="rtl"
-      className="mx-auto w-full space-y-6 px-3 pb-10 sm:px-5 lg:px-7"
+      className="mx-auto w-full max-w-[1600px] space-y-6 px-3 pb-8 sm:px-5 lg:px-8"
     >
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
