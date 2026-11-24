@@ -5,12 +5,12 @@ export interface IUser {
   lastName: string;
   mobile: string;
   nationalIdentificationNumber: string;
-  email: string | null;
-  birthDate: string | null;
+  email: string;
+  birthDate: string;
   gender: 0| 1 | 2 | 3;
-  address: string | null;
-  bio: string | null;
-  profileImageUrl: string | null;
+  address: string;
+  bio: string;
+  profileImageUrl: string;
   fullName: string;
   status: 0 | 1 | 2 | 3;
   createdAt: string;
@@ -19,7 +19,7 @@ export interface IUser {
     englishCountryName: string;
     persianCountryName : string
 
-  } | null
+  }
 }
 
 export interface IRole{
@@ -294,8 +294,17 @@ export interface IUserProfileDetails {
   secondaryCode?: string | null;
 }
 
+export type IUserDetailsBase = Omit<IUser, "email" | "birthDate" | "address" | "bio" | "profileImageUrl" | "nationality"> & {
+  email: string | null;
+  birthDate: string | null;
+  address: string | null;
+  bio: string | null;
+  profileImageUrl: string | null;
+  nationality: IUser["nationality"] | null;
+};
+
 export interface IUserDetails {
-  user: IUser;
+  user: IUserDetailsBase;
   mobileConfirmed: boolean;
   emailConfirmed: boolean;
   lastLoginAt: string | null;
