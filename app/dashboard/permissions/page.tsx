@@ -14,6 +14,7 @@ import {
   Layers3,
   LockKeyhole,
   Pencil,
+  Eye,
   RefreshCw,
   Search,
   ShieldCheck,
@@ -745,22 +746,25 @@ function PermissionActions({
 }: {
   permission: IPermission;
 }) {
-  if (permission.isSystem) {
-    return (
-      <span className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs text-gray-400 dark:text-gray-500">
-        <LockKeyhole size={14} />
-        غیرقابل ویرایش
-      </span>
-    );
-  }
-
   return (
-    <Link
-      href={`${PERMISSIONS_ROUTE}/${permission.id}/edit`}
-      className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 dark:border-gray-700 dark:text-gray-200 dark:hover:border-indigo-500/30 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-300"
-    >
-      <Pencil size={15} />
-      ویرایش
-    </Link>
+    <div className="flex flex-wrap items-center justify-center gap-2">
+      <Link
+        href={`${PERMISSIONS_ROUTE}/${permission.id}`}
+        className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700 transition hover:border-elf/30 hover:bg-elf/5 hover:text-elf dark:border-gray-700 dark:text-gray-200 dark:hover:bg-elf/10"
+      >
+        <Eye size={15} />
+        مشاهده
+      </Link>
+      {!permission.isSystem && (
+        <Link
+          href={`${PERMISSIONS_ROUTE}/${permission.id}/edit`}
+          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700 transition hover:border-elf/30 hover:bg-elf/5 hover:text-elf dark:border-gray-700 dark:text-gray-200 dark:hover:bg-elf/10"
+        >
+          <Pencil size={15} />
+          ویرایش
+        </Link>
+      )}
+      {permission.isSystem && <span className="text-xs text-gray-400">سیستمی</span>}
+    </div>
   );
 }
