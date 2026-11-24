@@ -1,3 +1,4 @@
+import type { IUserDetails } from "@/lib/types";
 import { ApiError } from "@/helper/ApiError";
 
 
@@ -331,7 +332,7 @@ export async function fetchAdminUser(id: string) {
     
     return await res.json();
 }
-export async function fetchUser(id: string, signal?: AbortSignal) {
+export async function fetchUser(id: string, signal?: AbortSignal): Promise<IUserDetails> {
      if (typeof window === "undefined") {
     throw new Error("This request must run in the browser.");
   }
