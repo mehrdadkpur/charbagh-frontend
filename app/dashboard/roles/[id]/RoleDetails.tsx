@@ -635,7 +635,7 @@ const handleAddUser = async () => {
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="mx-auto w-full max-w-[1600px] space-y-6 px-3 pb-8 sm:px-5 lg:px-8" dir="rtl">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
