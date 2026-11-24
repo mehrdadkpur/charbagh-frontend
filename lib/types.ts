@@ -5,12 +5,12 @@ export interface IUser {
   lastName: string;
   mobile: string;
   nationalIdentificationNumber: string;
-  email: string;
-  birthDate: string;
+  email: string | null;
+  birthDate: string | null;
   gender: 0| 1 | 2 | 3;
-  address: string;
-  bio: string;
-  profileImageUrl: string;
+  address: string | null;
+  bio: string | null;
+  profileImageUrl: string | null;
   fullName: string;
   status: 0 | 1 | 2 | 3;
   createdAt: string;
@@ -19,7 +19,7 @@ export interface IUser {
     englishCountryName: string;
     persianCountryName : string
 
-  }
+  } | null
 }
 
 export interface IRole{
