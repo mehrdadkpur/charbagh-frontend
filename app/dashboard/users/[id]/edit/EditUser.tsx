@@ -60,7 +60,7 @@ const EditUser = () => {
 
         if (controller.signal.aborted) return;
 
-        const account = (userData as IUserDetails).user;
+        const account = userData.user;
         setUser(account as IUser);
         setNationalities(nationalityData);
 
