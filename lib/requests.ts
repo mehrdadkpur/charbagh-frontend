@@ -365,7 +365,7 @@ export async function fetchBlog(id: string) {
   return res.json();
 }
 export async function fetchTeacher(id: string) {
-    const res = await fetch(`${apiDomain}/api/Teachers/${encodeURIComponent(id)}`, {
+    const res = await fetch(`${apiDomain}/api/Teachers/public/${encodeURIComponent(id)}`, {
       method: "GET",
       cache: "no-store",
       headers: { Accept: "application/json" }
@@ -379,7 +379,7 @@ export async function fetchTeacher(id: string) {
     return await res.json();
 }
 export async function fetchTeachers() {
-  const res = await fetch(`${apiDomain}/api/Teachers`, { cache: "no-store" });
+  const res = await fetch(`${apiDomain}/api/Teachers/public`, { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to fetch teachers. Status: ${res.status}`);
   return unwrapCollection(await res.json());
 }
