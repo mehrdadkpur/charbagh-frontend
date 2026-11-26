@@ -24,7 +24,8 @@ export type EducationResourceConfig = {
   statusField?: string;
   activatePath?: string;
   deactivatePath?: string;
-  mapFromApi?: (record: Record<string, unknown>) => Record<string, unknown>;\n  actions?: { label: string; path: string; queryParam?: string }[];
+  mapFromApi?: (record: Record<string, unknown>) => Record<string, unknown>;
+  actions?: { label: string; path: string; queryParam?: string }[];
 };
 
 const asRecord = (value: unknown): Record<string, unknown> =>
@@ -39,7 +40,15 @@ const asArray = (value: unknown): Record<string, unknown>[] => {
   return [];
 };
 
-const inputValue = (type: EducationField["type"], value: unknown) => {\n  if (value === null || value === undefined) return "";\n  const raw = String(value);\n  if (type === "datetime-local") return raw.replace("Z", "").slice(0, 16);\n  if (type === "time") return raw.slice(0, 5);\n  return raw;\n};\n\nconst display = (value: unknown) => {
+const inputValue = (type: EducationField["type"], value: unknown) => {
+  if (value === null || value === undefined) return "";
+  const raw = String(value);
+  if (type === "datetime-local") return raw.replace("Z", "").slice(0, 16);
+  if (type === "time") return raw.slice(0, 5);
+  return raw;
+};
+
+const display = (value: unknown) => {
   if (value === null || value === undefined || value === "") return "—";
   if (typeof value === "boolean") return value ? "بله" : "خیر";
   if (typeof value === "object") return JSON.stringify(value);
@@ -115,7 +124,15 @@ export default function EducationResourceManager({ config }: { config: Education
     finally{setSaving(false);}
   };
 
-  const runAction=async(item:Record<string,unknown>,action:{label:string;path:string;queryParam?:string})=>{\n    if(!item.id)return;\n    let query="";\n    if(action.queryParam){const value=window.prompt(`مقدار ${action.label} را وارد کنید (تاریخ با قالب YYYY-MM-DD):`);if(!value)return;query=`?${action.queryParam}=${encodeURIComponent(value)}`;}\n    try{await apiFetch(`${config.endpoint}/${String(item.id)}/${action.path}${query}`,{method:"PATCH"});await load();}\n    catch(e){setError(e instanceof Error?e.message:"اجرای عملیات ناموفق بود.");}\n  };\n\n  const toggleStatus=async(item:Record<string,unknown>)=>{
+  const runAction=async(item:Record<string,unknown>,action:{label:string;path:string;queryParam?:string})=>{
+    if(!item.id)return;
+    let query="";
+    if(action.queryParam){const value=window.prompt(`مقدار ${action.label} را وارد کنید (تاریخ با قالب YYYY-MM-DD):`);if(!value)return;query=`?${action.queryParam}=${encodeURIComponent(value)}`;}
+    try{await apiFetch(`${config.endpoint}/${String(item.id)}/${action.path}${query}`,{method:"PATCH"});await load();}
+    catch(e){setError(e instanceof Error?e.message:"اجرای عملیات ناموفق بود.");}
+  };
+
+  const toggleStatus=async(item:Record<string,unknown>)=>{
     if(!config.statusField||!item.id)return;
     const active=Boolean(item[config.statusField]);
     const path=active?config.deactivatePath:config.activatePath;
