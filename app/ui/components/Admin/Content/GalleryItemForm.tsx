@@ -67,6 +67,10 @@ export default function GalleryItemForm({ mediaType, itemId }: Props) {
             fileUrl: fileUrl.trim(),
           }),
         });
+        await apiFetch<CmsGalleryItem>(
+          `/api/GalleryItems/${itemId}/change-sort-order?sortOrder=${encodeURIComponent(String(Number(sortOrder)))}`,
+          { method: "PATCH" }
+        );
         toast.success("رسانه ویرایش شد.");
         router.push(`/dashboard/galleries/${mediaType === 1 ? "photos" : "videos"}/${itemId}`);
       } else {
@@ -102,7 +106,7 @@ export default function GalleryItemForm({ mediaType, itemId }: Props) {
         <label className="block space-y-2"><span className="text-sm">توضیحات</span><textarea rows={3} value={description} onChange={(event) => setDescription(event.target.value)} className="w-full rounded-lg border bg-transparent p-3" /></label>
         <label className="block space-y-2"><span className="text-sm">آدرس فایل {mediaType === 1 ? "تصویر" : "ویدئو"}</span><input required type="url" value={fileUrl} onChange={(event) => setFileUrl(event.target.value)} placeholder="https://..." dir="ltr" className="w-full rounded-lg border bg-transparent p-3" /></label>
         <label className="block space-y-2"><span className="text-sm">آدرس تصویر بندانگشتی (اختیاری)</span><input type="url" value={thumbnailUrl} onChange={(event) => setThumbnailUrl(event.target.value)} placeholder="https://..." dir="ltr" className="w-full rounded-lg border bg-transparent p-3" /></label>
-        {!isEdit && <label className="block space-y-2"><span className="text-sm">ترتیب نمایش</span><input type="number" min="0" value={sortOrder} onChange={(event) => setSortOrder(event.target.value)} className="w-full rounded-lg border bg-transparent p-3" /></label>}
+        <label className="block space-y-2"><span className="text-sm">ترتیب نمایش</span><input type="number" min="0" value={sortOrder} onChange={(event) => setSortOrder(event.target.value)} className="w-full rounded-lg border bg-transparent p-3" /></label>
         <p className="text-xs leading-6 text-gray-500">در بک‌اند فعلی endpoint بارگذاری فایل تعریف نشده است؛ آدرس فایل باید از قبل در دسترس باشد.</p>
         <div className="flex gap-3"><button disabled={saving || (!isEdit && galleries.length === 0)} className="rounded-lg bg-blue-600 px-5 py-3 text-white disabled:opacity-50">{saving ? "در حال ذخیره..." : "ذخیره"}</button><Link href={`/dashboard/galleries/${mediaType === 1 ? "photos" : "videos"}`} className="rounded-lg bg-gray-200 px-5 py-3 dark:bg-gray-700">انصراف</Link></div>
       </form>
