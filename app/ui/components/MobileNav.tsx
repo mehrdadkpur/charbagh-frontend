@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X, Home, BookOpen, GraduationCap, Guitar, Images, Newspaper, Music2, Info } from "lucide-react";
+import { Menu, X, Home, BookOpen, GraduationCap, Guitar, Images, Newspaper, Info } from "lucide-react";
 import ProfileNav from "./ProfileNav";
 
 const links = [
@@ -14,7 +14,6 @@ const links = [
   { href: "/instruments", label: "سازشناسی", icon: Guitar },
   { href: "/galleries", label: "گالری", icon: Images },
   { href: "/blogs", label: "بلاگ و رویدادها", icon: Newspaper },
-  { href: "/songs", label: "موسیقی آموزشی", icon: Music2 },
   { href: "/about", label: "درباره ما", icon: Info },
 ];
 
