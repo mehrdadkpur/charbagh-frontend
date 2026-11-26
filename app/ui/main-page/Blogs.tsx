@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { fetchBlogs } from "@/lib/requests"
 import BlogCard from "@/app/ui/components/BlogCard"
-import { IBlog } from "@/lib/types"
+import type { CmsBlog } from "@/lib/contentTypes"
 
 
 const Blogs = async () => {
@@ -13,7 +13,7 @@ const Blogs = async () => {
         <div className="flex flex-col items-center gap-16">
           {/* Header */}
           <div className="text-center">
-            <h4 className="ext-xs md:text-lg font-DanaMedium text-elf">
+            <h4 className="text-xs md:text-lg font-DanaMedium text-elf">
               خبرنامه
             </h4>
             <h2 className="text-3xl md:text-5xl font-MorabbaBold text-gray-900 dark:text-gray-50 leading-[60px] md:leading-20">
