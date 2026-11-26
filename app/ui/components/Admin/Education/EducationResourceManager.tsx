@@ -24,7 +24,7 @@ export type EducationResourceConfig = {
   singular: string;
   endpoint: string;
   fields: EducationField[];
-  columns: { key: string; label: string; lookupField?: string }[];
+  columns: { key: string; label: string; lookupField?: string; enumLabels?: Record<number, string> }[];
   statusField?: string;
   activatePath?: string;
   deactivatePath?: string;
@@ -60,7 +60,8 @@ const display = (value: unknown) => {
   return String(value);
 };
 
-const displayWithLookup = (value: unknown, lookupField: string | undefined, options: Record<string, { value: string | number; label: string }[]>) => {
+const displayWithLookup = (value: unknown, lookupField: string | undefined, options: Record<string, { value: string | number; label: string }[]>, enumLabels?: Record<number, string>) => {
+  if (enumLabels && value !== null && value !== undefined && enumLabels[Number(value)] !== undefined) return enumLabels[Number(value)];
   if (lookupField && value !== null && value !== undefined) {
     const found = options[lookupField]?.find(option => String(option.value) === String(value));
     if (found) return found.label;
@@ -111,7 +112,7 @@ export default function EducationResourceManager({ config }: { config: Education
   const filtered=useMemo(()=>{
     const q=search.trim().toLocaleLowerCase();
     if(!q)return items;
-    return items.filter(item=>config.columns.some(col=>displayWithLookup(item[col.key],col.lookupField,options).toLocaleLowerCase().includes(q)));
+    return items.filter(item=>config.columns.some(col=>displayWithLookup(item[col.key],col.lookupField,options,col.enumLabels).toLocaleLowerCase().includes(q)));
   },[items,search,config.columns,options]);
 
   const beginCreate=()=>{setCreating(true);setEditor({});setDetail(null);};
@@ -173,7 +174,7 @@ export default function EducationResourceManager({ config }: { config: Education
     {(editor||detail)&&<div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-3" onMouseDown={e=>{if(e.target===e.currentTarget){closeEditor();setDetail(null);}}}>
       <section className="my-auto max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-5 shadow-xl dark:bg-gray-900">
         <div className="mb-5 flex items-center justify-between"><h2 className="font-bold text-gray-900 dark:text-white">{detail?"جزئیات":creating?"افزودن":"ویرایش"} {config.singular}</h2><button onClick={()=>{closeEditor();setDetail(null);}} className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800"><X size={18}/></button></div>
-        {detail?<dl className="grid gap-3 sm:grid-cols-2">{Object.entries(detail).filter(([key])=>!key.toLowerCase().includes("navigation")).map(([key,value])=><div key={key} className="rounded-xl bg-gray-50 p-3 dark:bg-gray-950"><dt className="text-xs text-gray-500">{config.fields.find(f=>f.name.toLowerCase()===key.toLowerCase())?.label??key}</dt><dd className="mt-1 break-words text-sm text-gray-900 dark:text-gray-100">{displayWithLookup(value,config.fields.find(f=>f.name.toLowerCase()===key.toLowerCase()&&f.type==="select")?.name,options)}</dd></div>)}</dl>:
+        {detail?<dl className="grid gap-3 sm:grid-cols-2">{Object.entries(detail).filter(([key])=>!key.toLowerCase().includes("navigation")).map(([key,value])=><div key={key} className="rounded-xl bg-gray-50 p-3 dark:bg-gray-950"><dt className="text-xs text-gray-500">{config.fields.find(f=>f.name.toLowerCase()===key.toLowerCase())?.label??key}</dt><dd className="mt-1 break-words text-sm text-gray-900 dark:text-gray-100">{displayWithLookup(value,config.columns.find(col=>col.key.toLowerCase()===key.toLowerCase())?.lookupField??config.fields.find(f=>f.name.toLowerCase()===key.toLowerCase()&&f.type==="select")?.name,options,config.columns.find(col=>col.key.toLowerCase()===key.toLowerCase())?.enumLabels)}</dd></div>)}</dl>:
         <form onSubmit={submit} className="space-y-4">{config.fields.map(field=>{const value=editor?.[field.name];const common={name:field.name,required:field.required??false,disabled:!creating&&field.editableOnUpdate===false,min:field.min,max:field.max,defaultValue:inputValue(field.type,value),className:"w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-elf dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100"};return <label key={field.name} className="block space-y-1.5"><span className="text-sm font-medium text-gray-700 dark:text-gray-300">{field.label}{field.required?" *":""}</span>{field.type==="textarea"?<textarea {...common} rows={3}/>:field.type==="select"?<select {...common}><option value="">انتخاب کنید</option>{(field.options??options[field.name]??[]).map(option=><option key={String(option.value)} value={option.value}>{option.label}</option>)}</select>:<input {...common} type={field.type??"text"} step={field.type==="number"?"any":undefined}/>}</label>})}<div className="flex justify-end gap-2 border-t border-gray-100 pt-4 dark:border-gray-800"><button type="button" onClick={closeEditor} className="rounded-xl border px-4 py-2 text-sm dark:border-gray-700">انصراف</button><button disabled={saving} className="rounded-xl bg-elf px-5 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving?"در حال ذخیره...":"ذخیره"}</button></div></form>}
       </section>
     </div>}
