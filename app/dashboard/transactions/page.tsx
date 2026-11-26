@@ -29,4 +29,13 @@ const config: EducationResourceConfig = {
     { label: "لغو", path: "cancel", bodyPrompt: true }
   ]
 };
-export default function Page() { return <EducationResourceManager config={config} />; }
+export default function Page() {
+  return (
+    <div className="space-y-3">
+      <p className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm leading-6 text-blue-800 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-200">
+        برای قطعی‌شدن دریافت وجه، نوع «دریافت وجه» را انتخاب کنید و پس از ثبت، عملیات «موفق» را بزنید. برای برگرداندن وجه، نوع «بازپرداخت» را ثبت و فقط پس از انجام واقعی بازپرداخت، آن را موفق کنید. تراکنش ناموفق یا لغوشده روی مانده فاکتور اثر نمی‌گذارد.
+      </p>
+      <EducationResourceManager config={config} />
+    </div>
+  );
+}
