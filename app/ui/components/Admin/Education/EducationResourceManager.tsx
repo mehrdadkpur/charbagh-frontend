@@ -118,6 +118,7 @@ export default function EducationResourceManager({ config }: { config: Education
       const value=form.get(field.name);
       if(value===null)continue;
       if(field.type==="number")payload[field.name]=value===""?null:Number(value);
+      else if(field.type==="select"){const raw=String(value).trim();const choice=[...(field.options??[]),...(options[field.name]??[])].find(option=>String(option.value)===raw);payload[field.name]=raw===""?null:(choice?.value??raw);}
       else payload[field.name]=String(value).trim()||null;
     }
     setSaving(true);
