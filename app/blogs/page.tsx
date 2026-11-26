@@ -3,7 +3,7 @@ import BlogCard from "@/app/ui/components/BlogCard";
 import { fetchConfirmedBlogs } from "@/lib/requests";
 
 import Image from "next/image";
-import { IBlog } from "@/lib/types";
+import type { CmsBlog } from "@/lib/contentTypes";
 
 export const metadata = {
     title: 'آموزشگاه چهارباغ | پست ها',
@@ -17,7 +17,7 @@ const Blogs = async () => {
             <RoutesHeader pageTitle={'خبرنامه'} boldText={' خبرنامه و'} Highlight={'رویدادها'}/>
             <div className="container mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 justify-items-center mb-20">
-                    {blogs?.map((blog:IBlog) => {
+                    {blogs?.map((blog:CmsBlog) => {
                         return (
                             <BlogCard key={blog.id} blog={blog}/>
                         );
