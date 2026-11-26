@@ -12,7 +12,7 @@ const config: EducationResourceConfig = {
   ],
   columns: [
     { key: "invoiceDate", label: "تاریخ" },
-    { key: "studentId", label: "شناسه هنرجو" },
+    { key: "studentId", label: "هنرجو", lookupField: "studentId" },
     { key: "subtotal", label: "جمع جزء" },
     { key: "discountAmount", label: "تخفیف" },
     { key: "totalAmount", label: "مبلغ کل" },
