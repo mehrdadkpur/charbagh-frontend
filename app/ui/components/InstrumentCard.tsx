@@ -1,52 +1,38 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Instrument } from "@/lib/types"\nimport { API_BASE_URL } from "@/lib/config"
-  
-  const InstrumentCard = ({ instrument }: { instrument: Instrument }) => {\n    const imageUrl = instrument.imageUrl\n      ? (/^https?:\\/\\//i.test(instrument.imageUrl) ? instrument.imageUrl : `${API_BASE_URL}${instrument.imageUrl.startsWith("/") ? "" : "/"}${instrument.imageUrl}`)\n      : null;\n    return (
+import Image from "next/image";
+import Link from "next/link";
+import { Instrument } from "@/lib/types";
+import { API_BASE_URL } from "@/lib/config";
+
+function resolveImage(url: string | null | undefined) {
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${API_BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
+export default function InstrumentCard({ instrument }: { instrument: Instrument }) {
+  const imageUrl = resolveImage(instrument.imageUrl);
+
+  return (
     <Link
       href={`/instruments/${instrument.id}`}
-      className="group flex flex-col justify-center items-center w-full sm:w-[290px] h-[200px] p-4 
-      border-2 border-white dark:border-gray-700 rounded-2xl 
-      bg-white/5 dark:bg-gray-800/5 backdrop-blur-sm
-      hover:bg-white dark:hover:bg-gray-800 
-      hover:shadow-xl dark:hover:shadow-gray-900/30
-      transform transition-all duration-500 ease-out
-      hover:scale-105 hover:rotate-2"
+      className="group flex h-[200px] w-full flex-col items-center justify-center rounded-2xl border-2 border-white bg-white/5 p-4 backdrop-blur-sm transition duration-300 hover:scale-[1.02] hover:bg-white hover:shadow-xl dark:border-gray-700 dark:bg-gray-800/5 dark:hover:bg-gray-800"
     >
-      <div className="flex items-center justify-between w-full gap-4 p-2">
-        <h3 className="text-xl sm:text-2xl font-MorabbaBold text-gray-800 dark:text-white rtl">
-          <span>ســاز</span>
-          <span className="mr-2">{instrument.name}</span>
-        </h3>
-  
+      <div className="flex w-full items-center justify-between gap-4 p-2">
+        <h2 className="text-xl font-MorabbaBold text-gray-800 dark:text-white sm:text-2xl">{instrument.name}</h2>
         {imageUrl && (
-          <div className="w-32 h-32 flex items-center justify-center">
+          <div className="flex size-32 shrink-0 items-center justify-center">
             <Image
-              src={imageUrl} 
-              alt={instrument.name} 
+              src={imageUrl}
+              alt={`ساز ${instrument.name}`}
               width={128}
               height={128}
-              className="w-32 h-40 object-contain transition-transform duration-500 group-hover:scale-110"
+              unoptimized={imageUrl.startsWith("http")}
+              className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-110"
             />
           </div>
         )}
       </div>
-  
-      <div className="mt-3 text-center">
-        {/* <p className="text-sm font-DanaMedium text-mango-400">
-          {instrument.users.length > 0 ? (
-            instrument.users
-              .map((t:any) => `${t.firstname} ${t.lastname}`)
-              .join(" ، ")
-          ) : (
-            <span className="text-gray-400">بدون استاد</span>
-          )}
-        </p> */}
-
-</div>
-
+      {instrument.englishName && <p dir="ltr" className="text-xs text-gray-500 dark:text-gray-400">{instrument.englishName}</p>}
     </Link>
-  )
-  
-  export default InstrumentCard
-  
+  );
+}
