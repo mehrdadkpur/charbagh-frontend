@@ -183,6 +183,27 @@ const MENU_GROUPS: MenuGroup[] = [
         actions: ["View", "Manage"],
       },
       {
+        title: "روش‌های پرداخت",
+        href: "/dashboard/payment-methods",
+        icon: CreditCard,
+        module: "PaymentMethods",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "تراکنش‌ها",
+        href: "/dashboard/transactions",
+        icon: RefreshCw,
+        module: "Transactions",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "انواع تخفیف",
+        href: "/dashboard/discount-types",
+        icon: Tags,
+        module: "DiscountTypes",
+        actions: ["View", "Manage"],
+      },
+      {
         title: "خدمات آموزشی",
         href: "/dashboard/education-services",
         icon: Wrench,
