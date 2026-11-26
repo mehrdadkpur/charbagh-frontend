@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowRight, CalendarDays, ClipboardCheck, BookOpen, GraduationCap, RefreshCw, AlertCircle, CheckCircle2, XCircle, UserRound } from "lucide-react";
+import { ArrowRight, ClipboardCheck, BookOpen, GraduationCap, RefreshCw, AlertCircle, CheckCircle2, UserRound } from "lucide-react";
 import { apiFetch } from "@/lib/apiFetch";
 import Loading from "@/app/loading";
 
