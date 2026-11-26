@@ -64,6 +64,7 @@ export default function BlogForm({ blogId }: Props) {
           method: "PUT",
           body: JSON.stringify({
             id: blogId,
+            categoryId,
             title: title.trim(),
             text: content.trim(),
             imageUrl: imageUrl.trim() || null,
