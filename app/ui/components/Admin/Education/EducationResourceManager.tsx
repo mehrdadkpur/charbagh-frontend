@@ -29,8 +29,9 @@ export type EducationResourceConfig = {
   activatePath?: string;
   deactivatePath?: string;
   mapFromApi?: (record: Record<string, unknown>) => Record<string, unknown>;
-  actions?: { label: string; path: string; queryParam?: string }[];
+  actions?: { label: string; path: string; queryParam?: string; bodyPrompt?: boolean; method?: "PATCH" | "POST" }[];
   detailsPath?: string;
+  readOnly?: boolean;
 };
 
 const asRecord = (value: unknown): Record<string, unknown> =>
@@ -141,7 +142,7 @@ export default function EducationResourceManager({ config }: { config: Education
     finally{setSaving(false);}
   };
 
-  const runAction=async(item:Record<string,unknown>,action:{label:string;path:string;queryParam?:string})=>{
+  const runAction=async(item:Record<string,unknown>,action:{label:string;path:string;queryParam?:string;bodyPrompt?:boolean;method?:"PATCH"|"POST"})=>{
     if(!item.id)return;
     let query="";let body:string|undefined;
     if(action.queryParam){const value=window.prompt(`مقدار ${action.label} را وارد کنید (تاریخ با قالب YYYY-MM-DD):`);if(!value)return;query=`?${action.queryParam}=${encodeURIComponent(value)}`;}
