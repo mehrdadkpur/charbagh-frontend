@@ -48,6 +48,7 @@ const asArray = (value: unknown): Record<string, unknown>[] => {
 const inputValue = (type: EducationField["type"], value: unknown) => {
   if (value === null || value === undefined) return "";
   const raw = String(value);
+  if (type === "date") return raw.slice(0, 10);
   if (type === "datetime-local") return raw.replace("Z", "").slice(0, 16);
   if (type === "time") return raw.slice(0, 5);
   return raw;
@@ -142,9 +143,10 @@ export default function EducationResourceManager({ config }: { config: Education
 
   const runAction=async(item:Record<string,unknown>,action:{label:string;path:string;queryParam?:string})=>{
     if(!item.id)return;
-    let query="";
+    let query="";let body:string|undefined;
     if(action.queryParam){const value=window.prompt(`مقدار ${action.label} را وارد کنید (تاریخ با قالب YYYY-MM-DD):`);if(!value)return;query=`?${action.queryParam}=${encodeURIComponent(value)}`;}
-    try{await apiFetch(`${config.endpoint}/${String(item.id)}/${action.path}${query}`,{method:"PATCH"});await load();}
+    if(action.bodyPrompt){const value=window.prompt(`توضیحات ${action.label} را وارد کنید:`);if(value===null)return;body=JSON.stringify(value);}
+    try{await apiFetch(`${config.endpoint}/${String(item.id)}/${action.path}${query}`,{method:action.method??"PATCH",...(body!==undefined?{body}:{})});await load();}
     catch(e){setError(e instanceof Error?e.message:"اجرای عملیات ناموفق بود.");}
   };
 
@@ -160,7 +162,7 @@ export default function EducationResourceManager({ config }: { config: Education
   return <main dir="rtl" className="mx-auto w-full max-w-[1600px] space-y-6 px-3 py-6 sm:px-5 lg:px-8">
     <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div><h1 className="text-2xl font-bold text-gray-900 dark:text-white">{config.title}</h1><p className="mt-1 text-sm text-gray-500">مدیریت اطلاعات {config.singular} بر اساس سرویس‌های سامانه</p></div>
-      <button onClick={beginCreate} className="inline-flex items-center justify-center gap-2 rounded-xl bg-elf px-4 py-2.5 text-sm font-semibold text-white"><Plus size={17}/>افزودن {config.singular}</button>
+      {!config.readOnly&&<button onClick={beginCreate} className="inline-flex items-center justify-center gap-2 rounded-xl bg-elf px-4 py-2.5 text-sm font-semibold text-white"><Plus size={17}/>افزودن {config.singular}</button>}
     </header>
     <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
       <div className="flex flex-col gap-3 border-b border-gray-100 p-4 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between">
@@ -169,7 +171,7 @@ export default function EducationResourceManager({ config }: { config: Education
       </div>
       {error&&<div role="alert" className="m-4 flex items-start gap-2 rounded-xl bg-red-50 p-3 text-sm text-red-700 dark:bg-red-400/10 dark:text-red-300"><AlertCircle size={17} className="mt-0.5 shrink-0"/><span>{error}</span><button onClick={()=>setError(null)} className="mr-auto"><X size={15}/></button></div>}
       {loading?<div className="p-12 text-center text-sm text-gray-500">در حال دریافت اطلاعات...</div>:filtered.length===0?<div className="p-12 text-center text-sm text-gray-500">موردی برای نمایش وجود ندارد.</div>:
-      <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-right text-sm"><thead className="bg-gray-50 text-xs text-gray-500 dark:bg-gray-950"><tr>{config.columns.map(col=><th key={col.key} className="px-4 py-3 font-medium">{col.label}</th>)}<th className="px-4 py-3">عملیات</th></tr></thead><tbody className="divide-y divide-gray-100 dark:divide-gray-800">{filtered.map((item,index)=><tr key={String(item.id??index)} className="hover:bg-gray-50/70 dark:hover:bg-gray-800/40">{config.columns.map(col=><td key={col.key} className="max-w-xs px-4 py-3 text-gray-700 dark:text-gray-200"><span className="line-clamp-2">{displayWithLookup(item[col.key],col.lookupField,options,col.enumLabels)}</span></td>)}<td className="px-4 py-3"><div className="flex items-center gap-2"><button onClick={()=>setDetail(item)} title="مشاهده" className="rounded-lg border p-2 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"><Eye size={15}/></button>{config.detailsPath&&<Link href={`${config.detailsPath}/${String(item.id)}`} title="جزئیات کامل" className="rounded-lg border p-2 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"><ExternalLink size={15}/></Link>}<button onClick={()=>beginEdit(item)} title="ویرایش" className="rounded-lg border p-2 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"><Pencil size={15}/></button>{config.statusField&&<button onClick={()=>void toggleStatus(item)} title="تغییر وضعیت" className="rounded-lg border p-2 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"><Power size={15}/></button>}{config.actions?.map(action=><button key={action.path} onClick={()=>void runAction(item,action)} title={action.label} className="rounded-lg border px-2.5 py-2 text-xs text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300">{action.label}</button>)}</div></td></tr>)}</tbody></table></div>}
+      <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-right text-sm"><thead className="bg-gray-50 text-xs text-gray-500 dark:bg-gray-950"><tr>{config.columns.map(col=><th key={col.key} className="px-4 py-3 font-medium">{col.label}</th>)}<th className="px-4 py-3">عملیات</th></tr></thead><tbody className="divide-y divide-gray-100 dark:divide-gray-800">{filtered.map((item,index)=><tr key={String(item.id??index)} className="hover:bg-gray-50/70 dark:hover:bg-gray-800/40">{config.columns.map(col=><td key={col.key} className="max-w-xs px-4 py-3 text-gray-700 dark:text-gray-200"><span className="line-clamp-2">{displayWithLookup(item[col.key],col.lookupField,options,col.enumLabels)}</span></td>)}<td className="px-4 py-3"><div className="flex items-center gap-2"><button onClick={()=>setDetail(item)} title="مشاهده" className="rounded-lg border p-2 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"><Eye size={15}/></button>{config.detailsPath&&<Link href={`${config.detailsPath}/${String(item.id)}`} title="جزئیات کامل" className="rounded-lg border p-2 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"><ExternalLink size={15}/></Link>}{!config.readOnly&&<button onClick={()=>beginEdit(item)} title="ویرایش" className="rounded-lg border p-2 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"><Pencil size={15}/></button>}{config.statusField&&<button onClick={()=>void toggleStatus(item)} title="تغییر وضعیت" className="rounded-lg border p-2 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"><Power size={15}/></button>}{config.actions?.map(action=><button key={action.path} onClick={()=>void runAction(item,action)} title={action.label} className="rounded-lg border px-2.5 py-2 text-xs text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300">{action.label}</button>)}</div></td></tr>)}</tbody></table></div>}
     </section>
     {(editor||detail)&&<div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-3" onMouseDown={e=>{if(e.target===e.currentTarget){closeEditor();setDetail(null);}}}>
       <section className="my-auto max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-5 shadow-xl dark:bg-gray-900">
