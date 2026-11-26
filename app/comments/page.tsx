@@ -1,34 +1,26 @@
 import RoutesHeader from "@/app/ui/components/RoutesHeader";
-import { fetchComments } from "@/lib/requests";
-import Image from "next/image";
-import CommentCard from "../ui/components/CommentCard";
-import { IComment } from "@/lib/types";
+import Link from "next/link";
 
 export const metadata = {
-    title: 'آموزشگاه موسیقی چهارباغ |نطرات',
-    description: 'این صفحه نظرات هنرجویان و اساتید و مدرسین آموزشگاه موسیقی چهارباغ است.',
-  };
+  title: "دیدگاه هنرجویان | آموزشگاه موسیقی چهارباغ",
+  description: "دیدگاه‌ها و تجربه‌های هنرجویان آموزشگاه موسیقی چهارباغ.",
+};
 
-const Comments = async () => {
-    const comments = await fetchComments();
-    
-    return ( 
-        <section>
-            <div className="w-full bg-[#F6F4EE]">
-                <RoutesHeader pageTitle={"نظرات شما"} boldText={"نظرات فارغ التحصیلان و"} Highlight={"هنرجوبان"}/>
-                <div className="container">
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 md:gap-8 justify-items-center my-16">
-                        {comments&& comments?.map((comment:IComment)=>(
-                            <CommentCard key={comment.id} comment={comment}/>
-                        ))}
-                    </div>
-                </div>
-                <div>
-                    <Image width={1920} height={134} src="/images/shapes/footer-1.png" alt="footer" />
-                </div>
-            </div>
-        </section>
-     );
+export default function CommentsPage() {
+  return (
+    <section className="min-h-[55vh] bg-[#F6F4EE] dark:bg-gray-900">
+      <RoutesHeader pageTitle="دیدگاه‌ها" boldText="تجربه یادگیری" Highlight="در چهارباغ" />
+      <div className="container mx-auto px-4 py-16 text-center">
+        <div className="mx-auto max-w-2xl rounded-3xl bg-white p-8 shadow-sm dark:bg-gray-800 md:p-12">
+          <h1 className="text-2xl font-MorabbaBold md:text-3xl">دیدگاه هنرجویان</h1>
+          <p className="mt-4 text-sm leading-8 text-gray-600 dark:text-gray-300">
+            این بخش به‌زودی با تجربه‌ها و دیدگاه‌های منتشرشده هنرجویان تکمیل می‌شود.
+          </p>
+          <Link href="/courses" className="mt-7 inline-flex rounded-full bg-elf px-6 py-3 text-sm font-semibold text-white hover:bg-green-800">
+            مشاهده منابع آموزشی
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
 }
- 
-export default Comments;
