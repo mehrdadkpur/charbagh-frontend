@@ -1,81 +1,45 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { fetchBlog } from "../../../lib/requests";
+import { fetchBlog } from "@/lib/requests";
 import Loading from "@/app/loading";
 import RoutesHeader from "@/app/ui/components/RoutesHeader";
 import Image from "next/image";
 import ErrorHandling from "@/app/ui/components/ErrorHandling";
-import { IBlog } from "@/lib/types";
+import type { CmsBlog } from "@/lib/contentTypes";
 import { ShamsiDate } from "@/lib/shamsiDate";
-import { API_BASE_URL } from "@/lib/config";
 
-
-const Blog = () => {
-  const { id } = useParams();
-  const [blog, setBlog] = useState<IBlog | null>(null);
+export default function BlogDetailsPage() {
+  const params = useParams<{ id: string }>();
+  const [blog, setBlog] = useState<CmsBlog | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchBlogData = async () => {
-      if (!id) return;
-      try {
-        const blogData = await fetchBlog(id as string);        
-        setBlog(blogData);
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error("خطا در واکشی بلاگ:", error.message);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBlogData();
-  }, [id]);
+    let active = true;
+    fetchBlog(params.id)
+      .then((data: CmsBlog) => { if (active) setBlog(data); })
+      .catch((error) => console.error("خطا در دریافت مقاله:", error))
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [params.id]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && blog) {
-      document.title = `${blog.blog_title} `;
-    }
+    if (blog && typeof document !== "undefined") document.title = blog.title;
   }, [blog]);
 
   if (loading) return <Loading />;
   if (!blog) return <ErrorHandling />;
 
   return (
-    <section>
-      <div className="w-full bg-[#F6F4EE] dark:bg-gray-900">
-        <RoutesHeader pageTitle="خبرنامه" boldText="پست های منتخب" Highlight={blog.blog_title} />
-        <div className="container relative">
-          <div className="content flex justify-center items-center flex-col">
-            <div className="mt-20 absolute -top-[190px] md:-top-[250px] bg-white dark:bg-gray-700 p-2 rounded-3xl">
-              <Image
-                width={400}
-                height={200}
-                className="scale-95 rounded-3xl"
-                src={`${API_BASE_URL}${blog.blog_img}`}
-                alt="blog"
-              />
-            </div>
-
-            <div
-              className="w-[80%] py-3 mt-[330px] md:mt-[300px] text-base font-Dana text-justify leading-10 text-[#152420]/80 dark:text-gray-50"
-              dangerouslySetInnerHTML={{ __html: blog.blog_text }}
-            ></div>
-
-            <div className="w-[80%] mt-10 text-sm font-Dana dark:text-gray-50">
-              نوشته شده توسط: {blog.author.firstname} {blog.author.lastname} در تاریخ: {ShamsiDate(blog.blog_date)}
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <Image width={1920} height={134} src="/images/shapes/footer-1.png" alt="footer shape" />
-        </div>
+    <section className="bg-[#F6F4EE] dark:bg-gray-900">
+      <RoutesHeader pageTitle="خبرنامه" boldText="پست‌های منتخب" Highlight={blog.title} />
+      <div className="container mx-auto flex flex-col items-center px-4 pb-16">
+        {blog.imageUrl && <div className="relative mt-8 h-64 w-full max-w-2xl overflow-hidden rounded-3xl bg-white p-2 dark:bg-gray-700 md:h-96"><Image src={blog.imageUrl} alt={blog.title} fill unoptimized={blog.imageUrl.startsWith("http")} className="rounded-3xl object-contain" /></div>}
+        <article className="mt-10 w-full max-w-4xl whitespace-pre-wrap text-justify text-base leading-10 text-[#152420]/80 dark:text-gray-50">{blog.text}</article>
+        <p className="mt-10 w-full max-w-4xl text-sm text-gray-600 dark:text-gray-300">نوشته شده توسط: {blog.firstName} {blog.lastName} · {ShamsiDate(blog.createdAt)}</p>
       </div>
+      <Image width={1920} height={134} src="/images/shapes/footer-1.png" alt="footer shape" className="w-full" />
     </section>
   );
-};
-
-export default Blog;
+}
