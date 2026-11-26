@@ -8,7 +8,7 @@ const config: EducationResourceConfig = {
   fields: [
     { name: "studentId", label: "هنرجو", type: "select", optionsEndpoint: "/api/Students", optionLabel: ["firstName", "lastName"], required: true, editableOnUpdate: false },
     { name: "description", label: "شرح فاکتور", type: "textarea" },
-    { name: "invoiceDate", label: "تاریخ فاکتور", type: "date" }
+    { name: "invoiceDate", label: "تاریخ فاکتور", type: "date", visibleOnCreate: false }
   ],
   columns: [
     { key: "invoiceDate", label: "تاریخ" },
