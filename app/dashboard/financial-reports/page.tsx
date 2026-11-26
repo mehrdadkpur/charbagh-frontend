@@ -169,7 +169,7 @@ export default function FinancialReportsPage() {
           </div>
           <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
             <h2 className="font-bold text-gray-900 dark:text-white">مبلغ خدمات به تفکیک شرح</h2>
-            <p className="mt-1 text-xs text-gray-500">مجموع ردیف‌های فاکتورهای قطعی در بازه انتخابی</p>
+            <p className="mt-1 text-xs text-gray-500">مبلغ خالص ردیف‌ها پس از تخصیص متناسب تخفیف فاکتور</p>
             {report.serviceRevenue.length === 0 ? <p className="py-10 text-center text-sm text-gray-500">اطلاعاتی برای نمایش وجود ندارد.</p> :
               <div className="mt-5 space-y-4">{report.serviceRevenue.map(item => <div key={item.serviceName}>
                 <div className="mb-1 flex justify-between gap-3 text-sm"><span className="text-gray-700 dark:text-gray-200">{item.serviceName}</span><span className="font-semibold text-gray-900 dark:text-white">{money(item.amount)}</span></div>
