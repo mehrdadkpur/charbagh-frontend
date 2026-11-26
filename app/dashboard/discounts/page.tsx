@@ -12,7 +12,7 @@ const config: EducationResourceConfig = {
     { name: "description", label: "توضیحات", type: "textarea" }
   ],
   columns: [
-    { key: "invoiceId", label: "شناسه فاکتور" },
+    { key: "invoiceId", label: "فاکتور", lookupField: "invoiceId" },
     { key: "discountTypeId", label: "نوع تخفیف", lookupField: "discountTypeId" },
     { key: "valueType", label: "مبنا", enumLabels: { 1: "مبلغ ثابت", 2: "درصد" } },
     { key: "value", label: "مقدار" },
