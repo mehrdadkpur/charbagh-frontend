@@ -5,6 +5,7 @@ import { apiFetch } from "@/lib/apiFetch";
 import { CalendarDays, RefreshCw, Wallet, ReceiptText, CircleDollarSign, AlertCircle } from "lucide-react";
 
 type DailyPayment = { date: string; amount: number; count: number };
+type MonthlyPayment = { month: string; amount: number; count: number };
 type ServiceRevenue = { serviceName: string; amount: number; quantity: number };
 type StudentBalance = { studentId: string; studentName: string; invoiceCount: number; remainingAmount: number };
 type OutstandingInvoice = {
@@ -36,6 +37,7 @@ type ReportData = {
   outstandingAmount: number;
   outstandingInvoiceCount: number;
   dailyPayments: DailyPayment[];
+  monthlyPayments: MonthlyPayment[];
   serviceRevenue: ServiceRevenue[];
   studentBalances: StudentBalance[];
   outstandingInvoices: OutstandingInvoice[];
@@ -100,6 +102,10 @@ export default function FinancialReportsPage() {
     () => Math.max(1, ...(report?.dailyPayments.map(item => item.amount) ?? [])),
     [report],
   );
+  const maxMonthly = useMemo(
+    () => Math.max(1, ...(report?.monthlyPayments.map(item => item.amount) ?? [])),
+    [report],
+  );
   const maxService = useMemo(
     () => Math.max(1, ...(report?.serviceRevenue.map(item => item.amount) ?? [])),
     [report],
@@ -137,6 +143,17 @@ export default function FinancialReportsPage() {
           <SummaryCard title="مبلغ وصول‌شده" value={report.collectedAmount} icon={CircleDollarSign} hint={`${money(report.paymentCount)} پرداخت ثبت‌شده`} />
           <SummaryCard title="مانده مطالبات" value={report.outstandingAmount} icon={Wallet} hint={`${money(report.outstandingInvoiceCount)} فاکتور باز`} />
           <SummaryCard title="مجموع تخفیف‌ها" value={report.discountAmount} icon={ReceiptText} hint="روی فاکتورهای قطعی بازه" />
+        </section>
+
+        <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+          <h2 className="font-bold text-gray-900 dark:text-white">روند وصول ماهانه</h2>
+          <p className="mt-1 text-xs text-gray-500">تجمیع پرداخت‌ها بر اساس ماه تقویمی</p>
+          {report.monthlyPayments.length === 0 ? <p className="py-10 text-center text-sm text-gray-500">در این بازه پرداختی ثبت نشده است.</p> :
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{report.monthlyPayments.map(item => <div key={item.month} className="rounded-xl bg-gray-50 p-3 dark:bg-gray-950">
+              <div className="flex items-center justify-between gap-2 text-sm"><span className="text-gray-600 dark:text-gray-300">{new Intl.DateTimeFormat("fa-IR", { year: "numeric", month: "long" }).format(new Date(item.month))}</span><span className="font-semibold">{money(item.amount)}</span></div>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800"><div className="h-full rounded-full bg-elf" style={{ width: `${item.amount / maxMonthly * 100}%` }} /></div>
+              <p className="mt-1 text-[11px] text-gray-400">{money(item.count)} پرداخت</p>
+            </div>)}</div>}
         </section>
 
         <section className="grid gap-5 xl:grid-cols-2">
