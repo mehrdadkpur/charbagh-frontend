@@ -538,6 +538,28 @@ export async function fetchVideos() {
   return res.json();
 }
 
+export async function fetchPhotos() {
+  const res = await fetch(`${apiDomain}/api/GalleryItems/public?mediaType=1`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch public gallery photos");
+  return res.json();
+}
+
+export async function fetchAllVideos() {
+  return fetchVideos();
+}
+
+export async function fetchPublicGallery(id: string) {
+  const res = await fetch(`${apiDomain}/api/Galleries/published/${encodeURIComponent(id)}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch published gallery");
+  return res.json();
+}
+
+export async function fetchPublicGalleryItems(galleryId: string) {
+  const res = await fetch(`${apiDomain}/api/GalleryItems/public?galleryId=${encodeURIComponent(galleryId)}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch published gallery items");
+  return res.json();
+}
+
 export async function fetchAdminGuidances() {
     const res = await fetch(`${apiDomain}/api/contacts`, {
         method: 'GET',
