@@ -13,7 +13,7 @@ const config:EducationResourceConfig={
   columns:[
     {key:"name",label:"نام ساز"},
     {key:"englishName",label:"نام انگلیسی"},
-    {key:"instrumentCategoryId",label:"شناسه دسته‌بندی"},
+    {key:"instrumentCategoryId",label:"دسته‌بندی",lookupField:"instrumentCategoryId"},
     {key:"isActive",label:"فعال"}
   ],
   statusField:"isActive",
