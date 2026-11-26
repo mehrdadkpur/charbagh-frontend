@@ -267,14 +267,14 @@ const MENU_GROUPS: MenuGroup[] = [
       },
       {
         title: "تصاویر",
-        href: "/dashboard/photos",
+        href: "/dashboard/galleries/photos",
         icon: ImageIcon,
         module: "Photos",
         actions: ["View", "Manage"],
       },
       {
         title: "ویدئوها",
-        href: "/dashboard/videos",
+        href: "/dashboard/galleries/videos",
         icon: Video,
         module: "Videos",
         actions: ["View", "Manage"],
