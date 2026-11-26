@@ -15,10 +15,10 @@ export default function MainPage() {
             <Header />
             <Books />
             <Instruments />
-            {/* <Teachers /> */}
+            <Teachers />
             <Achievements />
             <Comments />
-            <Blogs /> 
+            <Blogs />
             <Contact />
         </main>
     )
