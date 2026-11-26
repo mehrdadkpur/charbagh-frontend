@@ -561,32 +561,11 @@ export async function fetchPublicGalleryItems(galleryId: string) {
 }
 
 export async function fetchAdminGuidances() {
-    const res = await fetch(`${apiDomain}/api/contacts`, {
-        method: 'GET',
-        cache: 'no-store',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (!res.ok) {
-        throw new Error('Failed to fetch Guidances');
-    }
-    const guidancesRes = await res.json();    
-    return guidancesRes;
+  return apiFetch("/api/Contacts");
 }
+
 export async function fetchGuidances() {
-    const res = await fetch(`${apiDomain}/api/contacts`, {
-        method: 'GET',
-        cache: 'no-store',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    if (!res.ok) {
-        throw new Error('Failed to fetch Guidances');
-    }
-    const guidancesRes = await res.json();    
-    return guidancesRes;
+  return apiFetch("/api/Contacts");
 }
 
 
