@@ -1,49 +1,54 @@
-import Image from "next/image"
-import Link from "next/link"
-import { IUser } from "@/lib/types"
+import Image from "next/image";
+import Link from "next/link";
+import { API_BASE_URL } from "@/lib/config";
+import type { PublicTeacher } from "@/lib/contentTypes";
 
-const TeacherCard = ({ teacher }: { teacher: IUser }) => (
+function resolveProfileImage(url: string | null) {
+  if (!url) return "/images/avatar.png";
+  if (/^https?:\/\//i.test(url) || url.startsWith("/")) return url;
+  return `${API_BASE_URL}/${url}`;
+}
 
-  <div className="w-full p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300">
-    <div className="flex flex-col items-center gap-4">
-      <Image
-        src={`${teacher.profileImageUrl }`|| '/images/avatar.png'}
-        alt={`${teacher.firstName} ${teacher.lastName}`}
-        width={144}
-        height={144}
-        className="rounded-full border border-mango"
-        priority
-      />
-      <div className="text-center space-y-1">
-        <h3 className="text-sm md:text-lg font-DanaDemiBold text-gray-800 dark:text-gray-100">
+function TeacherCard({ teacher }: { teacher: PublicTeacher }) {
+  const imageUrl = resolveProfileImage(teacher.profileImageUrl);
+
+  return (
+    <article className="w-full rounded-2xl bg-white p-6 shadow-md transition hover:-translate-y-1 hover:shadow-xl dark:bg-gray-800">
+      <div className="flex flex-col items-center gap-4">
+        <Image
+          src={imageUrl}
+          alt={`تصویر ${teacher.firstName} ${teacher.lastName}`}
+          width={144}
+          height={144}
+          unoptimized={imageUrl.startsWith("http")}
+          className="size-36 rounded-full border-2 border-mango object-cover"
+        />
+        <h3 className="text-center text-base font-DanaDemiBold text-gray-800 dark:text-gray-100">
           {teacher.firstName} {teacher.lastName}
         </h3>
-        {/* <p className="text-sm font-Dana text-gray-600 dark:text-gray-300">
-          مدرس ساز {teacher.instruments.map((ins:any)=>ins.instrument_name)}
-        </p> */}
+        {teacher.experienceYears !== null && (
+          <p className="text-sm text-gray-500 dark:text-gray-400">{teacher.experienceYears} سال تجربه آموزشی</p>
+        )}
+        <Link
+          href={`/teachers/${teacher.id}`}
+          className="rounded-full bg-mango px-5 py-3 text-sm font-DanaMedium text-gray-900 transition hover:bg-elf hover:text-white dark:bg-elf dark:text-white dark:hover:bg-mango"
+        >
+          مشاهده رزومه
+        </Link>
       </div>
-      <Link
-        href={`/teachers/${teacher.id}`}
-        className="font-DanaMedium bg-mango dark:bg-elf text-sm md:text-lg text-gray-900 dark:text-gray-50 p-3 mb-4 rounded-full hover:bg-elf dark:hover:bg-mango hover:scale-105 ease-in-out transition-all duration-700"
-      >
-        مشاهده رزومه
-      </Link>
+    </article>
+  );
+}
+
+export default function TeacherGrid({ teachers }: { teachers: PublicTeacher[] }) {
+  const activeTeachers = teachers.filter((teacher) => teacher.status === 1);
+  if (!activeTeachers.length) {
+    return <p className="col-span-full py-8 text-center text-gray-500">در حال حاضر مدرسی برای نمایش وجود ندارد.</p>;
+  }
+
+  return (
+    <div className="grid grid-cols-2 gap-5 p-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {activeTeachers.slice(0, 4).map((teacher) => <TeacherCard key={teacher.id} teacher={teacher} />)}
     </div>
-  </div>
-)
-
-const TeacherGrid = ({ teachers }: { teachers: IUser[] }) => (
-  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
-    {teachers && teachers.length > 0 ? (
-      teachers.slice(0, 4).map((teacher) => (
-        <TeacherCard key={teacher.id} teacher={teacher} />
-      ))
-    ) : (
-      <div className="col-span-full text-center py-8 text-gray-500">
-        هیچ استادی یافت نشد.
-      </div>
-    )}
-  </div>
-)
-
-export default TeacherGrid
+  );
+}
