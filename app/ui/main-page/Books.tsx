@@ -1,58 +1,36 @@
 import Link from "next/link";
 import Image from "next/image";
 import { fetchBooks } from "@/lib/requests";
-import CourseCard from '@/app/ui/components/CourseCard';
+import CourseCard from "@/app/ui/components/CourseCard";
+import type { PublicBook } from "@/lib/contentTypes";
 
-const Books = async () => {
-    const books = await fetchBooks();\n    const activeBooks = books.filter((book: any) => book.isActive);
+export default async function Books() {
+  const books = (await fetchBooks()) as PublicBook[];
+  const activeBooks = books.filter((book) => book.isActive);
 
-    
-    return ( 
-        <section className="w-full flex justify-between flex-col bg-[#F6F4EE] dark:bg-gray-900 pt-3">
-            <div className="container">
-                <div className="w-full flex justify-center items-center flex-col">
-                    <div className="w-[350px] md:w-[503px] text-center">
-                        <h4 className="text-xs md:text-lg font-DanaMedium text-elf">پیشنهاد های ما به شما</h4>
-                        <h2 className="text-3xl md:text-5xl font-MorabbaBold text-gray-900 dark:text-gray-50 leading-10 md:leading-20">
-                            منابع آموزشی برای یادگیری موسیقی
-                        </h2>
-                    </div>
+  return (
+    <section className="flex w-full flex-col justify-between bg-[#F6F4EE] pt-3 dark:bg-gray-900">
+      <div className="container mx-auto px-4">
+        <div className="flex w-full flex-col items-center">
+          <div className="w-full max-w-2xl text-center">
+            <p className="text-xs font-DanaMedium text-elf md:text-lg">منابع آموزشی</p>
+            <h2 className="mt-3 text-3xl font-MorabbaBold leading-relaxed text-gray-900 dark:text-gray-50 md:text-5xl">
+              کتاب‌هایی برای یادگیری و تمرین موسیقی
+            </h2>
+          </div>
 
-                    <div className="flex justify-center items-center mb-14 mt-5">
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-10">
-                            {activeBooks.slice(0, 3).map((course:any) => (
-                                <CourseCard key={course.id} course={course} />
-                            ))}
-                        </div>
-                    </div>
+          <div className="my-12 grid w-full justify-items-center gap-8 md:grid-cols-2 xl:grid-cols-3">
+            {activeBooks.slice(0, 3).map((book) => <CourseCard key={book.id} course={book} />)}
+            {!activeBooks.length && <p className="col-span-full py-8 text-center text-gray-500">منبع آموزشی فعالی برای نمایش وجود ندارد.</p>}
+          </div>
 
-                    <Link 
-                        href="/courses" 
-                        className="font-DanaMedium bg-mango dark:bg-elf md:text-2xl text-gray-900 dark:text-gray-50 text-sm p-3 mb-4 rounded-full hover:bg-elf dark:hover:bg-mango hover:scale-105 ease-in-out transition-all duration-700"
-                    >
-                        مشاهده همه کتاب‌ها
-                    </Link>
-                </div>
-            </div>
-            <div>
-            <Image
-              src="/images/shapes/courses.png"
-              alt="Decorative shape"
-              width={1920}
-              height={169}
-              className="w-full block dark:hidden"
-              priority
-            />
-            <Image
-              src="/images/shapes/courses-dark-1.png"
-              alt="Decorative shape"
-              width={1920}
-              height={169}
-              className="w-full hidden dark:block"
-              priority
-            />
-            </div>
-        </section>
-    )
+          <Link href="/courses" className="mb-8 rounded-full bg-mango px-6 py-3 text-sm font-DanaMedium text-gray-900 transition hover:bg-elf hover:text-white dark:bg-elf dark:text-white dark:hover:bg-mango">
+            مشاهده همه کتاب‌ها
+          </Link>
+        </div>
+      </div>
+      <Image src="/images/shapes/courses.png" alt="" width={1920} height={169} className="block w-full dark:hidden" />
+      <Image src="/images/shapes/courses-dark-1.png" alt="" width={1920} height={169} className="hidden w-full dark:block" />
+    </section>
+  );
 }
-export default Books;
