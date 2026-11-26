@@ -313,7 +313,7 @@ const MENU_GROUPS: MenuGroup[] = [
     icon: Settings,
     items: [
       {
-        title: "تغییر رمز عبور",
+        title: "بازیابی رمز عبور",
         href: "/dashboard/reset-password",
         icon: Settings,
         alwaysVisible: true,
