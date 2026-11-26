@@ -92,7 +92,7 @@ export async function fetchAdminBlogs() {
 export async function fetchBlogs() {
   const blogsData = await fetch(`${apiDomain}/api/Blogs/published`, { cache: "no-store" });
   if (!blogsData.ok) throw new Error("Failed to fetch published blogs");
-  return { blogs: await blogsData.json() };
+  return { blogs: unwrapCollection(await blogsData.json()) };
 }
 
 export async function fetchCurrentUser() {
@@ -125,7 +125,7 @@ export async function fetchCurrentUser() {
 export async function fetchConfirmedBlogs() {
   const res = await fetch(`${apiDomain}/api/Blogs/published`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch published blogs");
-  return { blogs: await res.json() };
+  return { blogs: unwrapCollection(await res.json()) };
 }
 
 export async function fetchPendingBlogs() {
@@ -258,7 +258,7 @@ export async function fetchBook(id: string) {
 export async function fetchGalleries() {
   const res = await fetch(`${apiDomain}/api/Galleries/published`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch published galleries");
-  return { galleries: await res.json() };
+  return { galleries: unwrapCollection(await res.json()) };
 }
 export async function fetchAdminUser(id: string) {
     const res = await fetch(`${apiDomain}/api/Admin/user/${id}`, {
@@ -519,13 +519,13 @@ export async function fetchStats() {
 export async function fetchVideos() {
   const res = await fetch(`${apiDomain}/api/GalleryItems/public?mediaType=2`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch public gallery videos");
-  return res.json();
+  return unwrapCollection(await res.json());
 }
 
 export async function fetchPhotos() {
   const res = await fetch(`${apiDomain}/api/GalleryItems/public?mediaType=1`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch public gallery photos");
-  return res.json();
+  return unwrapCollection(await res.json());
 }
 
 export async function fetchAllVideos() {
