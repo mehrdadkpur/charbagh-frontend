@@ -1,102 +1,54 @@
-"use client"
+"use client";
 
 import Link from "next/link";
-import { ChangeEvent, useEffect, useState } from "react"
-import {fetchAdminBlogs} from '@/lib/requests'
-import Search from "@/app/ui/components/Search";
-import Image from "next/image";
-import { IBlog } from "@/lib/types";
-import { ShamsiDate } from "@/lib/shamsiDate";
-import { API_BASE_URL } from "@/lib/config";
-import { BlogStatusHelper } from "@/helper/StatusHelper";
+import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { apiFetch } from "@/lib/apiFetch";
+import type { CmsBlog } from "@/lib/contentTypes";
 
-interface QueryState {
-  text: string;
-}
+const statusLabels: Record<number, string> = { 1: "پیش‌نویس", 2: "منتشرشده", 3: "بایگانی‌شده" };
 
-const Blogs = () => {
-
-    const [blogs, setBlogs] = useState<IBlog[]>([]);
-    const [query,setQuery]=useState<QueryState>({text:""});
-    const [filteredBlogs , setFilteredBlogs]=useState<IBlog[]>([]);
+export default function BlogsPage() {
+  const [blogs, setBlogs] = useState<CmsBlog[]>([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadBlogs = async () => {
-      const data = await fetchAdminBlogs();      
-      setBlogs(data.blogs);
-      setFilteredBlogs(data.blogs);
-    };
-    loadBlogs();
+    apiFetch<CmsBlog[]>("/api/Blogs")
+      .then(setBlogs)
+      .catch((error) => toast.error(error instanceof Error ? error.message : "دریافت مقالات ناموفق بود."))
+      .finally(() => setLoading(false));
   }, []);
 
+  const filtered = useMemo(() => blogs.filter((blog) =>
+    `${blog.title} ${blog.firstName} ${blog.lastName}`.toLowerCase().includes(search.toLowerCase())
+  ), [blogs, search]);
 
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>)=>{
-    setQuery({...query , text:e.target.value});
-    const allBlogs = blogs.filter((blog)=>{
-        return blog.title.toLowerCase().includes(e.target.value.toLowerCase());
-    })
-    setFilteredBlogs(allBlogs);
-
-    
-  }
-    return ( 
-        <section className="w-full flex justify-center mt-3">
-            <div className="w-full p-5 flex justify-center rounded-xl">
-                <div className="w-full mt-5 ">                   
-                    <span className="w-full flex justify-center items-center font-MorabbaMedium text-3xl mb-4">خبرنامه های آموزشگاه</span>
-                    <div className="relative w-full overflow-x-auto shadow-md sm:rounded-lg">
-                            <div className="w-full flex justify-center items-center gap-x-5 mb-5">
-                                <Search query={query} handleSearch={handleSearch} baseSearch={"موضوع و نویسنده"}/>
-                            </div>
-
-                        <table className="w-full text-sm font-DanaMedium">
-                            <thead className="text-xs">
-                                <tr>
-                                    <th scope="col" className="px-6 py-3">موضوع پست</th>
-                                    <th scope="col" className="px-6 py-3">نویسنده</th>
-                                    <th scope="col" className="px-6 py-3">تاریخ</th>
-                                    <th scope="col" className="px-6 py-3">وضعیت</th>
-                                    <th scope="col" className="px-6 py-3">عملیات</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredBlogs.map((blog:IBlog) => {
-                                return(       
-                                <tr key={blog.id} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td className="px-6 py-4">
-                                    <div className="flex items-center">
-                                        <div className="w-10 h-10 shrink-0">
-                                            <Image width={40} height={40} className="w-full h-full rounded-full object-cover" src={blog.imageUrl} alt={blog.title}/>
-                                        </div>
-                                        <div className="mr-3">
-                                        <div className="text-base font-semibold"> {blog.title}</div>
-                                        </div>
-                                    </div>
-                                    </td>
-                                    <td className="px-6 py-4">{blog.firstName} {' '} {blog.lastName}</td>
-                                    <td className="px-6 py-4">{ShamsiDate(blog.createdAt)}</td>
-                                    <td className="px-6 py-4">{BlogStatusHelper(blog.status)}</td>
-                                    <td className="flex justify-center items-center py-4">
-                                    <div className="flex items-center gap-2">
-                                        <Link 
-                                        href={`/dashboard/blogs/${blog.id}`}
-                                        className="bg-green-700 px-3 py-1.5 rounded-lg text-white hover:bg-green-800 transition-colors"
-                                        >
-                                        مشاهده و بررسی پست
-                                        </Link>
-                                    </div>
-                                    </td>
-                                </tr>
-)})}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-     );
+  return (
+    <main dir="rtl" className="mx-auto mt-6 w-full max-w-7xl space-y-5 px-4 pb-10">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">مدیریت مقالات</h1>
+        <Link href="/dashboard/blogs/create" className="rounded-xl bg-blue-600 px-5 py-3 text-white">ایجاد مقاله</Link>
+      </div>
+      <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="جست‌وجوی عنوان یا نویسنده" className="w-full rounded-xl border bg-transparent p-3" />
+      {loading ? <p className="py-10 text-center">در حال دریافت مقالات...</p> : filtered.length === 0 ? <p className="py-10 text-center text-gray-500">مقاله‌ای پیدا نشد.</p> : (
+        <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-100 dark:bg-gray-800"><tr>
+              <th className="p-3 text-right">عنوان</th><th className="p-3 text-right">نویسنده</th><th className="p-3 text-right">تاریخ ایجاد</th><th className="p-3 text-right">وضعیت</th><th className="p-3">عملیات</th>
+            </tr></thead>
+            <tbody>{filtered.map((blog) => (
+              <tr key={blog.id} className="border-t border-gray-200 dark:border-gray-700">
+                <td className="p-3 font-semibold">{blog.title}</td>
+                <td className="p-3">{blog.firstName} {blog.lastName}</td>
+                <td className="p-3">{new Date(blog.createdAt).toLocaleDateString("fa-IR")}</td>
+                <td className="p-3">{statusLabels[blog.status] ?? "نامشخص"}</td>
+                <td className="p-3 text-center"><Link className="rounded-lg bg-emerald-700 px-3 py-2 text-white" href={`/dashboard/blogs/${blog.id}`}>مشاهده</Link></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      )}
+    </main>
+  );
 }
- 
-export default Blogs;
-
