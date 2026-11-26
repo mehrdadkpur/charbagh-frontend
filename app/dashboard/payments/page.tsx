@@ -8,7 +8,7 @@ const config: EducationResourceConfig = {
     { name: "invoiceId", label: "فاکتور", type: "select", optionsEndpoint: "/api/Invoices", optionLabel: ["studentId", "totalAmount", "status"], required: true, editableOnUpdate: false },
     { name: "paymentMethodId", label: "روش پرداخت", type: "select", optionsEndpoint: "/api/PaymentMethods", optionLabel: "name", required: true },
     { name: "paidByUserId", label: "پرداخت‌کننده", type: "select", optionsEndpoint: "/api/Users", optionLabel: ["firstName", "lastName"] },
-    { name: "amount", label: "مبلغ", type: "number", required: true, min: 0.01 },
+    { name: "amount", label: "مبلغ", type: "number", required: true, min: 0.01, editableOnUpdate: false },
     { name: "paymentDate", label: "تاریخ پرداخت", type: "datetime-local", required: true },
     { name: "referenceNumber", label: "شماره پیگیری" },
     { name: "note", label: "یادداشت", type: "textarea" }
