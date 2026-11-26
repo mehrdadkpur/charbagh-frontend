@@ -1,0 +1,3 @@
+import EducationResourceManager, { type EducationResourceConfig } from "@/app/ui/components/Admin/Education/EducationResourceManager";
+const config:EducationResourceConfig={title:"خدمات آموزشی",singular:"خدمت آموزشی",endpoint:"/api/EducationServices",fields:[{name:"serviceName",label:"نام خدمت",required:true},{name:"description",label:"توضیحات",type:"textarea"}],columns:[{key:"serviceName",label:"نام خدمت"},{key:"description",label:"توضیحات"},{key:"isActive",label:"فعال"}],statusField:"isActive",activatePath:"activate",deactivatePath:"deactivate"};
+export default function Page(){return <EducationResourceManager config={config}/>}
