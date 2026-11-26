@@ -20,9 +20,5 @@ const config: EducationResourceConfig = {
     { key: "remainingAmount", label: "مانده" },
     { key: "status", label: "وضعیت", enumLabels: { 1: "پیش‌نویس", 2: "پرداخت‌نشده", 3: "پرداخت ناقص", 4: "تسویه‌شده", 5: "لغوشده" } }
   ],
-  actions: [
-    { label: "تأیید فاکتور", path: "confirm" },
-    { label: "لغو فاکتور", path: "cancel" }
-  ]
 };
 export default function Page() { return <EducationResourceManager config={config} />; }
