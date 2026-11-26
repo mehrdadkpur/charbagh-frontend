@@ -14,7 +14,6 @@ const config:EducationResourceConfig={
     {key:"name",label:"نام ساز"},
     {key:"englishName",label:"نام انگلیسی"},
     {key:"instrumentCategoryId",label:"شناسه دسته‌بندی"},
-    {key:"displayOrder",label:"ترتیب نمایش"},
     {key:"isActive",label:"فعال"}
   ],
   statusField:"isActive",
