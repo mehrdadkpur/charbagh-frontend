@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowRight, BookOpen, CalendarDays, GraduationCap, RefreshCw, AlertCircle, UserRound, Music2 } from "lucide-react";
@@ -111,4 +111,4 @@ export default function LessonAssignmentDetailsPage() {
 }
 
 function Info({label,value}:{label:string;value:string}) { return <div className="min-w-0 rounded-xl bg-gray-50 p-3 dark:bg-gray-950"><p className="text-xs text-gray-500">{label}</p><p className="mt-1 break-words text-sm font-medium text-gray-900 dark:text-gray-100">{value}</p></div>; }
-function Card({icon,title,primary,secondary}:{icon:React.ReactNode;title:string;primary:string;secondary:string}) { return <section className="rounded-2xl border bg-white p-4 dark:border-gray-800 dark:bg-gray-900"><div className="flex items-center gap-2 text-gray-500">{icon}<span className="text-sm">{title}</span></div><p className="mt-3 font-bold text-gray-900 dark:text-white">{primary}</p><p className="mt-1 text-xs text-gray-500">{secondary}</p></section>; }
+function Card({icon,title,primary,secondary}:{icon:ReactNode;title:string;primary:string;secondary:string}) { return <section className="rounded-2xl border bg-white p-4 dark:border-gray-800 dark:bg-gray-900"><div className="flex items-center gap-2 text-gray-500">{icon}<span className="text-sm">{title}</span></div><p className="mt-3 font-bold text-gray-900 dark:text-white">{primary}</p><p className="mt-1 text-xs text-gray-500">{secondary}</p></section>; }
