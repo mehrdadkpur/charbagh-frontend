@@ -42,3 +42,12 @@ export interface CmsGalleryItem {
   thumbnailUrl: string | null;
   sortOrder: number;
 }
+
+export interface CmsContact {
+  id: string;
+  fullName: string;
+  mobile: string;
+  status: 1 | 2 | 3 | 4;
+  createdAt: string;
+  updatedAt: string | null;
+}
