@@ -1,88 +1,58 @@
-'use client';
+"use client";
+
 import { useEffect, useState } from "react";
-import RoutesHeader from "@/app/ui/components/RoutesHeader";
 import { useParams } from "next/navigation";
-import { fetchInstrument } from "@/lib/requests";
-import Loading from "@/app/loading";
 import Image from "next/image";
+import RoutesHeader from "@/app/ui/components/RoutesHeader";
+import { fetchInstrument } from "@/lib/requests";
+import { API_BASE_URL } from "@/lib/config";
+import Loading from "@/app/loading";
 import ErrorHandling from "@/app/ui/components/ErrorHandling";
 
-const Instrument = () => {
-    const { id } = useParams();
-    
-    const [instrument, setInstrument] = useState(null);
-    const [loading, setLoading] = useState(true);
+function resolveImage(url) {
+  if (!url) return "/images/instruments/پیانو.png";
+  if (/^https?:\/\//i.test(url) || url.startsWith("/")) return url;
+  return `${API_BASE_URL}/${url}`;
+}
 
-    useEffect(() => {
-        const fetchInstrumentData = async () => {
-            if (!id) return;
-            try {
-                const data = await fetchInstrument(id);
-                setInstrument(data);
-            } catch (error) {
-                console.error("Error fetching instrument:", error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
+export default function InstrumentDetailsPage() {
+  const { id } = useParams();
+  const [instrument, setInstrument] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-        fetchInstrumentData();
-    }, [id]);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    fetchInstrument(id)
+      .then((data) => { if (active) setInstrument(data); })
+      .catch((error) => console.error("خطا در دریافت ساز:", error))
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [id]);
 
-    useEffect(() => {
-        if (instrument) {
-            document.title = `معرفی ساز ${instrument.instrument_name}`;
-        }
-    }, [instrument]);
+  useEffect(() => {
+    if (instrument?.name) document.title = `معرفی ساز ${instrument.name} | چهارباغ`;
+  }, [instrument]);
 
-    if (loading) {
-        return <Loading />;
-    }
+  if (loading) return <Loading />;
+  if (!instrument || !instrument.isActive) return <ErrorHandling />;
 
-    if (!instrument) {
-        return <ErrorHandling />;
-    }
+  const imageUrl = resolveImage(instrument.imageUrl);
 
-    
-    
-    return (
-        <div className="w-full bg-[#F6F4EE] dark:bg-gray-900">
-            <RoutesHeader
-                pageTitle="سازشناسی"
-                boldText="آشنایی با ساز"
-                Highlight={instrument.instrument_name}
-            />
-            <div className="container relative">
-                <div className="content flex justify-center items-center flex-col p-5">
-                    {/* Fixed-size image container */}
-                    <div className="flex justify-center items-center absolute -top-[100px] md:-top-[200px] p-4 bg-white dark:bg-gray-700 rounded-3xl">
-                        <Image
-                            width={400} // Fixed width
-                            height={400} // Fixed height
-                            className="w-full max-h-[420px]  rounded-3xl"
-                            src={instrument.instrument_img}
-                            alt={instrument.instrument_name}
-                            priority // Ensures the image loads quickly
-                        />
-                    </div>
-                    {/* Description */}
-                    <div className="w-[80%] mt-[240px] md:mt-[400px] text-base font-Dana leading-10 text-[#152420]/80 dark:text-gray-50">
-                        {instrument.instrument_description}
-                    </div>
-                </div>
-            </div>
-            {/* Footer image */}
-            <div>
-                <Image
-                    width={1920}
-                    height={134}
-                    src="/images/shapes/footer-1.png"
-                    alt="footer"
-                    priority
-                />
-            </div>
+  return (
+    <section className="w-full bg-[#F6F4EE] dark:bg-gray-900">
+      <RoutesHeader pageTitle="سازشناسی" boldText="آشنایی با ساز" Highlight={instrument.name} />
+      <main className="container mx-auto grid gap-8 px-4 pb-16 md:grid-cols-[minmax(240px,380px)_1fr] md:items-center">
+        <div className="flex min-h-[280px] items-center justify-center rounded-3xl bg-white p-6 shadow-sm dark:bg-gray-800">
+          <Image src={imageUrl} alt={`ساز ${instrument.name}`} width={360} height={360} unoptimized={imageUrl.startsWith("http")} className="max-h-[360px] w-auto object-contain" priority />
         </div>
-    );
-};
-
-export default Instrument;
+        <div className="rounded-3xl bg-white p-6 shadow-sm dark:bg-gray-800 md:p-9">
+          {instrument.englishName && <p dir="ltr" className="mb-3 text-left text-sm text-gray-500">{instrument.englishName}</p>}
+          <h1 className="mb-5 text-3xl font-MorabbaBold">{instrument.name}</h1>
+          <p className="whitespace-pre-line text-base leading-9 text-gray-700 dark:text-gray-300">{instrument.description || "توضیحات این ساز هنوز ثبت نشده است."}</p>
+        </div>
+      </main>
+      <Image width={1920} height={134} src="/images/shapes/footer-1.png" alt="" className="w-full" />
+    </section>
+  );
+}
