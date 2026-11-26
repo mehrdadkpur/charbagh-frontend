@@ -23,7 +23,7 @@ const Blogs = async () => {
 
           {/* Blog Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
-            {blogs?.slice(0,2).map((blog: IBlog) => {
+            {blogs?.slice(0,2).map((blog: CmsBlog) => {
               return (
                 <BlogCard
                   key={blog.id}
