@@ -69,13 +69,9 @@ export interface PublicBook {
 
 export interface PublicTeacher {
   id: string;
-  userId: string;
   firstName: string;
   lastName: string;
-  email: string | null;
   profileImageUrl: string | null;
-  personnelCode: string;
-  employmentDate: string;
   education: number | null;
   experienceYears: number | null;
   biography: string | null;
