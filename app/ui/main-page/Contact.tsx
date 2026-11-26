@@ -64,7 +64,7 @@ export default function Contact() {
   }
 
   return (
-    <section className="relative overflow-hidden bg-elf dark:bg-gray-900">
+    <section id="contact" className="relative scroll-mt-24 overflow-hidden bg-elf dark:bg-gray-900">
       <Image src="/images/shapes/wave-5.png" alt="" width={1920} height={169} className="block w-full dark:hidden" />
       <Image src="/images/shapes/wave-5-dark-2.png" alt="" width={1920} height={169} className="hidden w-full dark:block" />
       <div className="container mx-auto px-4 py-12">
