@@ -95,7 +95,12 @@ export default function EducationResourceManager({ config }: { config: Education
     return()=>{cancelled=true;};
   },[config.fields]);
 
-  const resolveDisplay=(value:unknown,lookupField?:string)=>{\n    if(lookupField&&value!==null&&value!==undefined){const found=options[lookupField]?.find(option=>String(option.value)===String(value));if(found)return found.label;}\n    return display(value);\n  };\n\n  const filtered=useMemo(()=>{
+  const resolveDisplay=(value:unknown,lookupField?:string)=>{
+    if(lookupField&&value!==null&&value!==undefined){const found=options[lookupField]?.find(option=>String(option.value)===String(value));if(found)return found.label;}
+    return display(value);
+  };
+
+  const filtered=useMemo(()=>{
     const q=search.trim().toLocaleLowerCase();
     if(!q)return items;
     return items.filter(item=>config.columns.some(col=>resolveDisplay(item[col.key],col.lookupField).toLocaleLowerCase().includes(q)));
