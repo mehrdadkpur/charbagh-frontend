@@ -290,7 +290,7 @@ const MENU_GROUPS: MenuGroup[] = [
         title: "راهنماها",
         href: "/dashboard/guidances",
         icon: BookOpen,
-        module: "Guidances",
+        module: "Contacts",
         actions: ["View", "Manage"],
       },
     ],
