@@ -105,7 +105,7 @@ export default function GalleryCollectionsManager() {
               </div>
               {gallery.coverImageUrl && <img src={gallery.coverImageUrl} alt={gallery.title} className="h-36 w-full rounded-xl object-cover" />}
               <div className="flex flex-wrap gap-2">
-                <button onClick={() => startEdit(gallery)} className="rounded-lg bg-amber-600 px-3 py-2 text-sm text-white">ویرایش</button>
+                {gallery.status === 1 && <button onClick={() => startEdit(gallery)} className="rounded-lg bg-amber-600 px-3 py-2 text-sm text-white">ویرایش</button>}
                 {gallery.status === 1 && <button onClick={() => void changeStatus(gallery, "publish")} className="rounded-lg bg-emerald-700 px-3 py-2 text-sm text-white">انتشار</button>}
                 {gallery.status === 2 && <button onClick={() => void changeStatus(gallery, "unpublish")} className="rounded-lg bg-amber-700 px-3 py-2 text-sm text-white">لغو انتشار</button>}
                 {gallery.status !== 3 && <button onClick={() => void changeStatus(gallery, "archive")} className="rounded-lg bg-red-700 px-3 py-2 text-sm text-white">بایگانی</button>}
