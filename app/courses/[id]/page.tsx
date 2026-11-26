@@ -1,76 +1,64 @@
-'use client'
+"use client";
+
 import { useEffect, useState } from "react";
-import RoutesHeader from "@/app/ui/components/RoutesHeader";
 import { useParams } from "next/navigation";
-import { fetchCourse } from "@/lib/requests";
-import Loading from "@/app/loading";
 import Image from "next/image";
-import { ICourse } from "@/lib/types";
+import Link from "next/link";
+import RoutesHeader from "@/app/ui/components/RoutesHeader";
+import Loading from "@/app/loading";
+import ErrorHandling from "@/app/ui/components/ErrorHandling";
+import { fetchBook } from "@/lib/requests";
+import { API_BASE_URL } from "@/lib/config";
+import type { PublicBook } from "@/lib/contentTypes";
 
-const Course = () => {
-    const params = useParams();
-    const id = typeof params.id === 'string' ? params.id : undefined;
+function resolveImage(url: string | null) {
+  if (!url) return "/images/songs/book.png";
+  if (/^https?:\/\//i.test(url) || url.startsWith("/")) return url;
+  return `${API_BASE_URL}/${url}`;
+}
 
-    const [course, setCourse] = useState<ICourse | null>(null);
-    const [loading, setLoading] = useState(true);
+export default function BookDetailsPage() {
+  const params = useParams<{ id: string }>();
+  const [book, setBook] = useState<PublicBook | null>(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchCourseData = async () => {
-            if (!id) return;
-            try {
-                const course = await fetchCourse(id);
-                setCourse(course);
-            } catch (error) {
-                if (error instanceof Error) {
-                    console.log(error.message);
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-        if (course === null) {
-            fetchCourseData();
-        }
-    }, [id, course]);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    fetchBook(params.id)
+      .then((data: PublicBook) => { if (active) setBook(data); })
+      .catch(() => { if (active) setBook(null); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [params.id]);
 
-    useEffect(() => {
-        if (course) {
-            document.title = `دوره آموزشی ${course.course_name}`;
-        }
-    }, [course]);
+  useEffect(() => {
+    if (book) document.title = `${book.title} | منابع آموزشی چهارباغ`;
+  }, [book]);
 
-    if (loading) {
-        return <Loading />;
-    }
+  if (loading) return <Loading />;
+  if (!book || !book.isActive) return <ErrorHandling />;
 
-    if (!course) {
-        return <div>Course not found</div>;
-    }
+  const imageUrl = resolveImage(book.coverImageUrl);
 
-    return (
-        <div className="w-full bg-[#F6F4EE] dark:bg-gray-900">
-            <RoutesHeader pageTitle={'دوره ها '} boldText={'دوره آموزشی'} Highlight={course.course_name} />
-            <div className="container relative">
-                <div className="content flex justify-center items-center flex-col">
-                    <div className="w-[85%] md:w-auto flex justify-center items-center p-4 absolute -top-24 md:-top-[200px] bg-white dark:bg-gray-700 rounded-3xl">
-                        <Image
-                            width={150}
-                            height={150}
-                            className="rounded-3xl"
-                            src={course.course_img}
-                            alt={course.course_name}
-                        />
-                    </div>
-                    <div className="md:w-[80%] font-Dana leading-10 pt-60 md:pt-[450px] text-gray-900 dark:text-gray-50">
-                        {course.course_description}
-                    </div>
-                </div>
-            </div>
-            <div>
-                <Image width={1920} height={134} src="/images/shapes/footer-1.png" alt="footer" />
-            </div>
+  return (
+    <section className="w-full bg-[#F6F4EE] dark:bg-gray-900">
+      <RoutesHeader pageTitle="منابع آموزشی" boldText="جزئیات کتاب" Highlight={book.title} />
+      <main className="container mx-auto grid gap-8 px-4 pb-16 md:grid-cols-[minmax(240px,360px)_1fr] md:items-start">
+        <div className="flex min-h-[280px] items-center justify-center rounded-3xl bg-white p-6 shadow-sm dark:bg-gray-800">
+          <Image src={imageUrl} alt={`جلد کتاب ${book.title}`} width={320} height={380} unoptimized={imageUrl.startsWith("http")} className="max-h-[380px] w-auto object-contain" priority />
         </div>
-    );
-};
-
-export default Course;
+        <div className="space-y-5 rounded-3xl bg-white p-6 shadow-sm dark:bg-gray-800 md:p-9">
+          <h1 className="text-2xl font-MorabbaBold md:text-4xl">{book.title}</h1>
+          {book.englishTitle && <p dir="ltr" className="text-left text-gray-500">{book.englishTitle}</p>}
+          <dl className="space-y-4 text-sm leading-7">
+            {book.author && <div><dt className="text-gray-500">نویسنده</dt><dd className="font-semibold">{book.author}</dd></div>}
+            {book.publisher && <div><dt className="text-gray-500">ناشر</dt><dd className="font-semibold">{book.publisher}</dd></div>}
+            {book.volume !== null && <div><dt className="text-gray-500">جلد</dt><dd className="font-semibold">{book.volume}</dd></div>}
+          </dl>
+          <Link href="/courses" className="inline-flex rounded-full bg-elf px-6 py-3 text-sm font-semibold text-white hover:bg-green-800">بازگشت به منابع آموزشی</Link>
+        </div>
+      </main>
+    </section>
+  );
+}
