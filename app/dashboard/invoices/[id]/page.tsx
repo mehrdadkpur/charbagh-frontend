@@ -48,7 +48,7 @@ export default function InvoiceDetailsPage() {
         apiFetch<unknown>("/api/EducationServices").catch(()=>[])
       ]);
       setInvoice(inv); setItems(arr(itemRows)); setPayments(arr(paymentRows)); setDiscount(discountRow); 
-      const serviceNames = new Map(arr(educationRows).map(x=>[String(x.id),String(x.serviceName??x.name??"خدمت آموزشی")]));
+      const serviceNames = new Map<string,string>(arr(educationRows).map(x=>[String(x.id),String(x.serviceName??x.name??"خدمت آموزشی")] as [string,string]));
       setServices(arr(serviceRows).map(x=>({id:String(x.id),name:serviceNames.get(String(x.educationServiceId))??String(x.educationServiceId),price:Number(x.price??0)})));
       const s = await apiFetch<Row>(`/api/Students/${inv.studentId}`).catch(()=>null);
       setStudent(s);
