@@ -1,43 +1,17 @@
-'use client';
-
-import { useEffect, useState } from "react";
-import { fetchAdminInstrument } from "@/lib/requests";
-import { useParams } from "next/navigation";
-import { Instrument } from "@/lib/types";
+"use client";
+import {useEffect,useState} from "react";
+import Link from "next/link";
+import {useParams} from "next/navigation";
+import {ArrowRight,BookOpen,Music2,AlertCircle,RefreshCw} from "lucide-react";
+import {apiFetch} from "@/lib/apiFetch";
 import Loading from "@/app/loading";
-import ErrorHandling from "@/app/ui/components/ErrorHandling";
-import ViewInstrument from "./ViewInstrument";
 
-const Page = () => {
-  const [instrument, setInstrument] = useState<Instrument | null >(null);
-  const [instrumentLoading, setInstrumentLoading] = useState(true);
-
-  const { instrumentId } = useParams();
-
-  useEffect(() => {
-    const loadInstrument = async () => {
-      try {
-        const data = await fetchAdminInstrument(instrumentId as string);
-        setInstrument(data);
-      } catch (err) {
-        console.error((err as Error).message);
-      } finally {
-        setInstrumentLoading(false);
-      }
-    };
-  
-    loadInstrument();
-  }, [instrumentId]);
-  
-  if ( instrumentLoading) return <Loading />;
-  if (!instrument) return <ErrorHandling />;
-
-  return (
-    <div className="container space-y-6">
-      <ViewInstrument instrument={instrument} setInstrument={setInstrument} />
-    </div>
-  );
-};
-
-export default Page;
-
+type Instrument={id:string;instrumentCategoryId:string;name:string;englishName:string|null;description:string|null;displayOrder:number;imageUrl:string|null;isActive:boolean};
+export default function InstrumentDetailsPage(){
+ const {instrumentId}=useParams<{instrumentId:string}>();
+ const [item,setItem]=useState<Instrument|null>(null);const [error,setError]=useState<string|null>(null);const [loading,setLoading]=useState(true);const [retry,setRetry]=useState(0);
+ useEffect(()=>{let active=true;setLoading(true);apiFetch<Instrument>(`/api/Instruments/${instrumentId}`).then(v=>{if(active)setItem(v)}).catch(e=>{if(active)setError(e instanceof Error?e.message:"دریافت ساز ناموفق بود.")}).finally(()=>{if(active)setLoading(false)});return()=>{active=false}},[instrumentId,retry]);
+ if(loading)return <Loading/>;
+ if(error||!item)return <main dir="rtl" className="mx-auto flex min-h-[55vh] max-w-3xl flex-col items-center justify-center gap-3 p-6"><AlertCircle className="text-red-500"/><p>{error??"ساز پیدا نشد."}</p><button onClick={()=>setRetry(x=>x+1)} className="rounded-xl bg-elf px-4 py-2 text-white"><RefreshCw size={15} className="ml-2 inline"/>تلاش دوباره</button></main>;
+ return <main dir="rtl" className="mx-auto max-w-4xl space-y-6 p-4 sm:p-6"><header className="flex items-center justify-between"><div><p className="text-sm text-gray-500">مدیریت آموزش / سازها</p><h1 className="mt-1 text-2xl font-bold">{item.name}</h1></div><Link href="/dashboard/instruments" className="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm dark:border-gray-700"><ArrowRight size={16}/>بازگشت</Link></header><section className="rounded-2xl border bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900"><div className="flex items-center gap-3"><span className="rounded-xl bg-elf/10 p-3 text-elf"><Music2 size={25}/></span><div><h2 className="font-semibold">{item.name}</h2><p className="text-sm text-gray-500">{item.englishName||"نام انگلیسی ثبت نشده"}</p></div><span className={`mr-auto rounded-full px-3 py-1 text-xs ${item.isActive?"bg-emerald-50 text-emerald-700":"bg-gray-100 text-gray-600"}`}>{item.isActive?"فعال":"غیرفعال"}</span></div><dl className="mt-6 grid gap-3 sm:grid-cols-2"><div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-950"><dt className="text-xs text-gray-500">شناسه دسته‌بندی</dt><dd className="mt-2 break-all text-sm">{item.instrumentCategoryId}</dd></div><div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-950"><dt className="text-xs text-gray-500">ترتیب نمایش</dt><dd className="mt-2 text-sm">{item.displayOrder}</dd></div><div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-950 sm:col-span-2"><dt className="text-xs text-gray-500">توضیحات</dt><dd className="mt-2 text-sm">{item.description||"توضیحی ثبت نشده است."}</dd></div></dl></section><Link href="/dashboard/books" className="flex items-center justify-center gap-2 rounded-xl bg-elf px-4 py-3 text-sm font-semibold text-white"><BookOpen size={17}/>مشاهده کتاب‌های آموزشی<ArrowRight size={16}/></Link></main>;
+}
