@@ -14,7 +14,7 @@ const config: EducationResourceConfig = {
     { name: "note", label: "یادداشت", type: "textarea" }
   ],
   columns: [
-    { key: "invoiceId", label: "شناسه فاکتور" },
+    { key: "invoiceId", label: "فاکتور", lookupField: "invoiceId" },
     { key: "paymentMethodId", label: "روش پرداخت", lookupField: "paymentMethodId" },
     { key: "amount", label: "مبلغ" },
     { key: "paymentDate", label: "تاریخ پرداخت" },
