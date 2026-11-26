@@ -14,7 +14,6 @@ const Navigation = () => {
     { href: "/instruments", label: "سازشناسی" },
     { href: "/galleries", label: "گالری" },
     { href: "/blogs", label: "بلاگ" },
-    { href: "/songs", label: "موسیقی" },
     { href: "/about", label: "درباره ما" },
   ];
 
