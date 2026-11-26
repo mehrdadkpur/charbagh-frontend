@@ -26,6 +26,14 @@ type PaymentRow = {
   referenceNumber?: string | null;
   note?: string | null;
 };
+type RefundRow = {
+  id: string;
+  paymentId: string;
+  transactionDate: string;
+  amount: number;
+  referenceNumber?: string | null;
+  description?: string | null;
+};
 type ReportData = {
   fromDate: string;
   toDate: string;
@@ -34,6 +42,8 @@ type ReportData = {
   discountAmount: number;
   collectedAmount: number;
   paymentCount: number;
+  refundAmount: number;
+  refundCount: number;
   outstandingAmount: number;
   outstandingInvoiceCount: number;
   dailyPayments: DailyPayment[];
@@ -42,6 +52,7 @@ type ReportData = {
   studentBalances: StudentBalance[];
   outstandingInvoices: OutstandingInvoice[];
   payments: PaymentRow[];
+  refunds: RefundRow[];
 };
 
 const money = (value: number) =>
@@ -138,9 +149,10 @@ export default function FinancialReportsPage() {
       {error && <div role="alert" className="flex items-start gap-2 rounded-xl bg-red-50 p-4 text-sm text-red-700 dark:bg-red-950/30 dark:text-red-300"><AlertCircle size={18} className="mt-0.5 shrink-0" />{error}</div>}
 
       {loading && !report ? <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-sm text-gray-500 dark:border-gray-800 dark:bg-gray-900">در حال دریافت گزارش...</div> : report && <>
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <SummaryCard title="مبلغ فاکتورهای قطعی" value={report.invoicedAmount} icon={ReceiptText} hint={`${money(report.invoiceCount)} فاکتور`} />
-          <SummaryCard title="مبلغ وصول‌شده" value={report.collectedAmount} icon={CircleDollarSign} hint={`${money(report.paymentCount)} پرداخت ثبت‌شده`} />
+          <SummaryCard title="وصول خالص" value={report.collectedAmount} icon={CircleDollarSign} hint="پس از کسر بازپرداخت‌ها" />
+          <SummaryCard title="بازپرداخت‌ها" value={report.refundAmount} icon={RefreshCw} hint={`${money(report.refundCount)} بازپرداخت موفق`} />
           <SummaryCard title="مانده مطالبات" value={report.outstandingAmount} icon={Wallet} hint={`${money(report.outstandingInvoiceCount)} فاکتور باز`} />
           <SummaryCard title="مجموع تخفیف‌ها" value={report.discountAmount} icon={ReceiptText} hint="روی فاکتورهای قطعی بازه" />
         </section>
@@ -194,7 +206,11 @@ export default function FinancialReportsPage() {
           <div className="border-b border-gray-100 p-4 dark:border-gray-800"><h2 className="font-bold text-gray-900 dark:text-white">پرداخت‌های بازه انتخابی</h2><p className="mt-1 text-xs text-gray-500">مبنای محاسبه مبلغ وصول‌شده در این گزارش</p></div>
           {report.payments.length === 0 ? <p className="p-8 text-center text-sm text-gray-500">پرداختی در این بازه ثبت نشده است.</p> : <div className="overflow-x-auto"><table className="w-full min-w-[620px] text-right text-sm"><thead className="bg-gray-50 text-xs text-gray-500 dark:bg-gray-950"><tr><th className="px-4 py-3">تاریخ پرداخت</th><th className="px-4 py-3">شناسه فاکتور</th><th className="px-4 py-3">مبلغ</th><th className="px-4 py-3">شماره پیگیری</th><th className="px-4 py-3">توضیحات</th></tr></thead><tbody className="divide-y divide-gray-100 dark:divide-gray-800">{report.payments.map(row => <tr key={row.id}><td className="px-4 py-3">{dateText(row.paymentDate)}</td><td className="px-4 py-3 font-mono text-xs">{row.invoiceId}</td><td className="px-4 py-3 font-semibold">{money(row.amount)}</td><td className="px-4 py-3">{row.referenceNumber || "—"}</td><td className="px-4 py-3">{row.note || "—"}</td></tr>)}</tbody></table></div>}
         </section>
-        <p className="text-xs leading-6 text-gray-500">مبالغ بر اساس واحد پولی ذخیره‌شده در سامانه نمایش داده می‌شوند. فاکتورهای پیش‌نویس و لغوشده از مبلغ فاکتورهای قطعی و خدمات حذف شده‌اند. مانده مطالبات و بدهی هنرجویان، وضعیت فعلی تمام فاکتورهای باز را نشان می‌دهد و به بازه تاریخ محدود نیست.</p>
+        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+          <div className="border-b border-gray-100 p-4 dark:border-gray-800"><h2 className="font-bold text-gray-900 dark:text-white">بازپرداخت‌های موفق</h2><p className="mt-1 text-xs text-gray-500">این مبالغ از وصول خالص و روند جریان نقدی کسر شده‌اند</p></div>
+          {report.refunds.length === 0 ? <p className="p-8 text-center text-sm text-gray-500">بازپرداخت موفقی در این بازه ثبت نشده است.</p> : <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-right text-sm"><thead className="bg-gray-50 text-xs text-gray-500 dark:bg-gray-950"><tr><th className="px-4 py-3">تاریخ بازپرداخت</th><th className="px-4 py-3">شناسه پرداخت</th><th className="px-4 py-3">مبلغ</th><th className="px-4 py-3">شماره پیگیری</th><th className="px-4 py-3">شرح</th></tr></thead><tbody className="divide-y divide-gray-100 dark:divide-gray-800">{report.refunds.map(row => <tr key={row.id}><td className="px-4 py-3">{dateText(row.transactionDate)}</td><td className="px-4 py-3 font-mono text-xs">{row.paymentId}</td><td className="px-4 py-3 font-semibold text-red-600">{money(row.amount)}</td><td className="px-4 py-3">{row.referenceNumber || "—"}</td><td className="px-4 py-3">{row.description || "—"}</td></tr>)}</tbody></table></div>}
+        </section>
+        <p className="text-xs leading-6 text-gray-500">مبالغ بر اساس واحد پولی ذخیره‌شده در سامانه نمایش داده می‌شوند. فاکتورهای پیش‌نویس و لغوشده از مبلغ فاکتورهای قطعی و خدمات حذف شده‌اند. بازپرداخت‌های موفق از وصول خالص کسر می‌شوند. مانده مطالبات و بدهی هنرجویان، وضعیت فعلی تمام فاکتورهای باز را نشان می‌دهد و به بازه تاریخ محدود نیست.</p>
       </>}
     </main>
   );
