@@ -1,8 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Instrument } from "@/lib/types"
+import { Instrument } from "@/lib/types"\nimport { API_BASE_URL } from "@/lib/config"
   
-  const InstrumentCard = ({ instrument   }: { instrument: Instrument , } ) => (
+  const InstrumentCard = ({ instrument }: { instrument: Instrument }) => {\n    const imageUrl = instrument.imageUrl\n      ? (/^https?:\\/\\//i.test(instrument.imageUrl) ? instrument.imageUrl : `${API_BASE_URL}${instrument.imageUrl.startsWith("/") ? "" : "/"}${instrument.imageUrl}`)\n      : null;\n    return (
     <Link
       href={`/instruments/${instrument.id}`}
       className="group flex flex-col justify-center items-center w-full sm:w-[290px] h-[200px] p-4 
@@ -19,10 +19,10 @@ import { Instrument } from "@/lib/types"
           <span className="mr-2">{instrument.name}</span>
         </h3>
   
-        {instrument.imageUrl && (
+        {imageUrl && (
           <div className="w-32 h-32 flex items-center justify-center">
             <Image
-              src={instrument.imageUrl} 
+              src={imageUrl} 
               alt={instrument.name} 
               width={128}
               height={128}
