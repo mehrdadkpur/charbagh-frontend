@@ -5,7 +5,6 @@ const Books = dynamic(() => import('@/app/ui/main-page/Books'))
 const Instruments = dynamic(() => import('@/app/ui/main-page/Instruments'))
 const Teachers = dynamic(() => import('@/app/ui/main-page/Teachers'))
 const Achievements = dynamic(() => import('@/app/ui/main-page/Achivements'))
-const Comments = dynamic(() => import('@/app/ui/main-page/Comments'))
 const Blogs = dynamic(() => import('@/app/ui/main-page/Blogs'))
 const Contact = dynamic(() => import('@/app/ui/main-page/Contact'))
 
@@ -17,7 +16,6 @@ export default function MainPage() {
             <Instruments />
             <Teachers />
             <Achievements />
-            <Comments />
             <Blogs />
             <Contact />
         </main>
