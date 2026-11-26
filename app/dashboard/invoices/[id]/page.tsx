@@ -39,15 +39,17 @@ export default function InvoiceDetailsPage() {
   const load = useCallback(async() => {
     setLoading(true); setError(null);
     try {
-      const [inv,itemRows,paymentRows,discountRow,serviceRows] = await Promise.all([
+      const [inv,itemRows,paymentRows,discountRow,serviceRows,educationRows] = await Promise.all([
         apiFetch<Invoice>(`/api/Invoices/${id}`),
         apiFetch<unknown>(`/api/InvoiceItems/invoice/${id}`),
         apiFetch<unknown>(`/api/Payments/invoice/${id}`),
         apiFetch<Row|null>(`/api/discounts/invoice/${id}`).catch(()=>null),
-        apiFetch<unknown>("/api/ServicePrices")
+        apiFetch<unknown>("/api/ServicePrices"),
+        apiFetch<unknown>("/api/EducationServices").catch(()=>[])
       ]);
       setInvoice(inv); setItems(arr(itemRows)); setPayments(arr(paymentRows)); setDiscount(discountRow); 
-      setServices(arr(serviceRows).map(x=>({id:String(x.id),name:String(x.educationServiceName??x.name??x.educationServiceId),price:Number(x.price??0)})));
+      const serviceNames = new Map(arr(educationRows).map(x=>[String(x.id),String(x.serviceName??x.name??"خدمت آموزشی")]));
+      setServices(arr(serviceRows).map(x=>({id:String(x.id),name:serviceNames.get(String(x.educationServiceId))??String(x.educationServiceId),price:Number(x.price??0)})));
       const s = await apiFetch<Row>(`/api/Students/${inv.studentId}`).catch(()=>null);
       setStudent(s);
     } catch(e) { setError(e instanceof Error ? e.message : "دریافت جزئیات فاکتور ناموفق بود."); }
