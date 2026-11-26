@@ -159,12 +159,12 @@ export default function FinancialReportsPage() {
 
         <section className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
           <h2 className="font-bold text-gray-900 dark:text-white">روند وصول ماهانه</h2>
-          <p className="mt-1 text-xs text-gray-500">تجمیع پرداخت‌ها بر اساس ماه تقویمی</p>
+          <p className="mt-1 text-xs text-gray-500">تجمیع جریان نقدی خالص بر اساس ماه تقویمی</p>
           {report.monthlyPayments.length === 0 ? <p className="py-10 text-center text-sm text-gray-500">در این بازه پرداختی ثبت نشده است.</p> :
             <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{report.monthlyPayments.map(item => <div key={item.month} className="rounded-xl bg-gray-50 p-3 dark:bg-gray-950">
               <div className="flex items-center justify-between gap-2 text-sm"><span className="text-gray-600 dark:text-gray-300">{new Intl.DateTimeFormat("fa-IR", { year: "numeric", month: "long" }).format(new Date(item.month))}</span><span className="font-semibold">{money(item.amount)}</span></div>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800"><div className="h-full rounded-full bg-elf" style={{ width: `${item.amount / maxMonthly * 100}%` }} /></div>
-              <p className="mt-1 text-[11px] text-gray-400">{money(item.count)} پرداخت</p>
+              <p className="mt-1 text-[11px] text-gray-400">{money(item.count)} رویداد مالی</p>
             </div>)}</div>}
         </section>
 
