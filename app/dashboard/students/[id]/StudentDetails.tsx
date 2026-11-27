@@ -312,7 +312,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
   };
 
   const connectParent = async () => {
-    if (!student || !selectedParentId || !canHaveParent || !can("StudentParents", ["Create"]) || parentBusy) return;
+    if (!student || !selectedParentId || !canHaveParent || !can("StudentParents", ["Create"]) || !can("Parents", ["View"]) || parentBusy) return;
     setParentBusy(true);
     try {
       await apiFetch<unknown>(parentApi.connect, {
@@ -401,7 +401,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
           <section className="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <div className="flex flex-col gap-3 border-b border-gray-100 px-4 py-4 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between sm:px-5">
               <div className="flex items-center gap-2"><div className="flex size-9 items-center justify-center rounded-xl bg-elf/10 text-elf dark:text-emerald-300"><UsersRound size={19} /></div><div><h2 className="font-semibold text-gray-900 dark:text-white">والدین و سرپرستان</h2><p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{age === null ? "سن هنرآموز مشخص نیست" : `سن هنرآموز: ${age} سال`}</p></div></div>
-              {canHaveParent && can("StudentParents", ["Create"]) && <button type="button" onClick={() => { setParentModalOpen(true); setParentsError(null); }} className="inline-flex h-10 items-center justify-center gap-2 self-start rounded-xl bg-elf px-4 text-sm font-semibold text-white transition hover:opacity-90"><Plus size={17} />اتصال والد</button>}
+              {canHaveParent && can("StudentParents", ["Create"]) && can("Parents", ["View"]) && <button type="button" onClick={() => { setParentModalOpen(true); setParentsError(null); }} className="inline-flex h-10 items-center justify-center gap-2 self-start rounded-xl bg-elf px-4 text-sm font-semibold text-white transition hover:opacity-90"><Plus size={17} />اتصال والد</button>}
             </div>
             {!canHaveParent ? (
               <div className="px-5 py-10 text-center"><ShieldCheck size={28} className="mx-auto text-gray-400" /><p className="mt-3 text-sm font-medium text-gray-700 dark:text-gray-200">{age === null ? "برای تعیین امکان اتصال والد، تاریخ تولد معتبر لازم است." : "هنرآموز ۱۸ سال یا بیشتر دارد؛ اتصال والد از این بخش امکان‌پذیر نیست."}</p></div>
@@ -423,7 +423,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
         </>
       )}
 
-      {parentModalOpen && canHaveParent && can("StudentParents", ["Create"]) && (
+      {parentModalOpen && canHaveParent && can("StudentParents", ["Create"]) && can("Parents", ["View"]) && (
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-3" role="dialog" aria-modal="true" aria-labelledby="connect-parent-title">
           <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900">
             <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-800"><div><h2 id="connect-parent-title" className="font-semibold text-gray-900 dark:text-white">اتصال والد به هنرآموز</h2><p className="mt-1 text-xs text-gray-500 dark:text-gray-400">ابتدا والد را جست‌وجو و سپس نسبت را مشخص کنید.</p></div><button type="button" onClick={() => setParentModalOpen(false)} className="flex size-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="بستن"><X size={18} /></button></div>
