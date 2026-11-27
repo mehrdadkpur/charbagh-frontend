@@ -49,9 +49,6 @@ type MenuGroup = {
   items: MenuItem[];
 };
 
-const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_URL ?? ""
-).replace(/\/+$/, "");
 
 const MENU_GROUPS: MenuGroup[] = [
   {
