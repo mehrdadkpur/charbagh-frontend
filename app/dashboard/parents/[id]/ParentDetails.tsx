@@ -20,6 +20,7 @@ import {
 
 import { apiFetch } from "@/lib/apiFetch";
 import { ApiError } from "@/helper/ApiError";
+import { useCurrentPermissions } from "@/lib/useCurrentPermissions";
 import type { IParentDetails, IParentStudentDetails } from "@/lib/types";
 import Image from "next/image";
 
@@ -314,6 +315,7 @@ export default function ParentDetails({parentId,}: {parentId: string;}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const { can } = useCurrentPermissions();
 
   const loadParent = useCallback(async () => {
     setLoading(true);
@@ -534,7 +536,7 @@ export default function ParentDetails({parentId,}: {parentId: string;}) {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                {availableActions.map((action) => {
+                {can("Parents", ["Manage"]) && availableActions.map((action) => {
                   const Icon = action.icon;
 
                   return (
