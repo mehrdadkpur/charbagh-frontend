@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { API_BASE_URL } from "@/lib/config";
 import { extractPermissions, hasPermission, toPermissionKeys, type PermissionResponse } from "@/lib/dashboardPermissions";
 import {
   Activity,
@@ -32,6 +33,286 @@ import {
   CircleAlert,
   Music2,
 } from "lucide-react";
+
+type MenuItem = {
+  title: string;
+  href: string;
+  icon: typeof LayoutDashboard;
+  module?: string;
+  actions?: string[];
+  alwaysVisible?: boolean;
+};
+
+type MenuGroup = {
+  title: string;
+  icon: typeof LayoutDashboard;
+  items: MenuItem[];
+};
+
+const API_BASE_URL = (
+  process.env.NEXT_PUBLIC_API_URL ?? ""
+).replace(/\/+$/, "");
+
+const MENU_GROUPS: MenuGroup[] = [
+  {
+    title: "نمای کلی",
+    icon: LayoutDashboard,
+    items: [
+      {
+        title: "داشبورد",
+        href: "/dashboard",
+        icon: LayoutDashboard,
+        module: "Dashboard",
+        actions: ["View", "Manage"],
+      },
+    ],
+  },
+  {
+    title: "مدیریت کاربران",
+    icon: Users,
+    items: [
+      {
+        title: "کاربران",
+        href: "/dashboard/users",
+        icon: Users,
+        module: "Users",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "مدرسان",
+        href: "/dashboard/teachers",
+        icon: GraduationCap,
+        module: "Teachers",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "هنرجویان",
+        href: "/dashboard/students",
+        icon: Users,
+        module: "Students",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "والدین",
+        href: "/dashboard/parents",
+        icon: Users,
+        module: "Parents",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "کارکنان",
+        href: "/dashboard/staffs",
+        icon: UserCog,
+        module: "Staffs",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "نقش‌ها",
+        href: "/dashboard/roles",
+        icon: Shield,
+        module: "Roles",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "مجوزها",
+        href: "/dashboard/permissions",
+        icon: ShieldCheck,
+        module: "Permissions",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "شعبه‌ها",
+        href: "/dashboard/branches",
+        icon: Building2,
+        module: "Branches",
+        actions: ["View", "Manage"],
+      },
+    ],
+  },
+  {
+    title: "مدیریت آموزش",
+    icon: BookOpen,
+    items: [
+      { title: "دسته‌بندی سازها", href: "/dashboard/instrument-categories", icon: Tags, module: "InstrumentCategories", actions: ["View", "Manage"] },
+      { title: "سازهای موسیقی", href: "/dashboard/instruments", icon: Music, module: "Instruments", actions: ["View", "Manage"] },
+      { title: "کتاب‌های آموزشی", href: "/dashboard/books", icon: BookOpen, module: "Books", actions: ["View", "Manage"] },
+      { title: "تخصص سازهای مدرسان", href: "/dashboard/teacher-instruments", icon: GraduationCap, module: "TeacherInstruments", actions: ["View", "Manage"] },
+      { title: "سرفصل‌های کتاب", href: "/dashboard/book-items", icon: FileText, module: "BookItems", actions: ["View", "Manage"] },
+      { title: "کلاس‌های آموزشی", href: "/dashboard/classrooms", icon: Building2, module: "Classrooms", actions: ["View", "Manage"] },
+      { title: "برنامه‌های آموزشی", href: "/dashboard/teaching-plans", icon: CalendarDays, module: "TeachingPlans", actions: ["View", "Manage"] },
+      { title: "تخصیص‌های آموزشی", href: "/dashboard/lesson-assignments", icon: GraduationCap, module: "LessonAssignments", actions: ["View", "Manage"] },
+      { title: "جلسات آموزشی", href: "/dashboard/lesson-sessions", icon: CalendarDays, module: "LessonSessions", actions: ["View", "Manage"] },
+      { title: "محتوای جلسات", href: "/dashboard/lesson-contents", icon: FileText, module: "LessonContents", actions: ["View", "Manage"] },
+      { title: "حضور و غیاب", href: "/dashboard/attendance", icon: ClipboardCheck, module: "Attendances", actions: ["View", "Manage"] },
+      { title: "تکالیف تمرینی", href: "/dashboard/practice-assignments", icon: BookOpen, module: "PracticeAssignments", actions: ["View", "Manage"] },
+      { title: "ارزیابی‌ها", href: "/dashboard/evaluations", icon: Activity, module: "Evaluations", actions: ["View", "Manage"] },
+      { title: "خدمات آموزشی", href: "/dashboard/education-services", icon: Wrench, module: "EducationServices", actions: ["View", "Manage"] },
+    ],
+  },
+  {
+    title: "مدیریت مالی",
+    icon: Wallet,
+    items: [
+      {
+        title: "فاکتورها",
+        href: "/dashboard/invoices",
+        icon: FileText,
+        module: "Invoices",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "گزارش‌های مالی",
+        href: "/dashboard/financial-reports",
+        icon: Activity,
+        module: "Invoices",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "پرداخت‌ها",
+        href: "/dashboard/payments",
+        icon: CreditCard,
+        module: "Payments",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "روش‌های پرداخت",
+        href: "/dashboard/payment-methods",
+        icon: CreditCard,
+        module: "PaymentMethods",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "تراکنش‌ها",
+        href: "/dashboard/transactions",
+        icon: RefreshCw,
+        module: "Transactions",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "انواع تخفیف",
+        href: "/dashboard/discount-types",
+        icon: Tags,
+        module: "DiscountTypes",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "خدمات آموزشی",
+        href: "/dashboard/education-services",
+        icon: Wrench,
+        module: "EducationServices",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "قیمت خدمات",
+        href: "/dashboard/service-prices",
+        icon: Wallet,
+        module: "ServicePrices",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "تخفیف‌ها",
+        href: "/dashboard/discounts",
+        icon: Tags,
+        module: "Discounts",
+        actions: ["View", "Manage"],
+      },
+    ],
+  },
+  {
+    title: "مدیریت محتوا",
+    icon: FileText,
+    items: [
+      {
+        title: "مقالات",
+        href: "/dashboard/blogs",
+        icon: FileText,
+        module: "Blogs",
+        actions: ["View", "Create", "Update", "Delete", "Approve"],
+      },
+      {
+        title: "دسته‌بندی‌ها",
+        href: "/dashboard/categories",
+        icon: Tags,
+        module: "Categories",
+        actions: ["View", "Create", "Update"],
+      },
+      {
+        title: "برچسب‌ها",
+        href: "/dashboard/tags",
+        icon: Tags,
+        module: "Tags",
+        actions: ["View", "Create", "Update"],
+      },
+      {
+        title: "نظرات",
+        href: "/dashboard/comments",
+        icon: MessageSquare,
+        module: "Comments",
+        actions: ["View", "Create", "Update", "Approve"],
+      },
+      {
+        title: "گالری‌ها",
+        href: "/dashboard/galleries",
+        icon: ImageIcon,
+        module: "Galleries",
+        actions: ["View", "Create", "Update", "Delete", "Approve"],
+      },
+      {
+        title: "تصاویر",
+        href: "/dashboard/galleries/photos",
+        icon: ImageIcon,
+        module: "GalleryItems",
+        actions: ["View", "Create", "Update", "Delete"],
+      },
+      {
+        title: "ویدئوها",
+        href: "/dashboard/galleries/videos",
+        icon: Video,
+        module: "GalleryItems",
+        actions: ["View", "Create", "Update", "Delete"],
+      },
+      {
+        title: "راهنماها",
+        href: "/dashboard/guidances",
+        icon: BookOpen,
+        module: "Contacts",
+        actions: ["View", "Manage"],
+      },
+    ],
+  },
+  {
+    title: "امنیت و گزارش‌ها",
+    icon: ShieldCheck,
+    items: [
+      {
+        title: "تاریخچه ورود",
+        href: "/dashboard/login-histories",
+        icon: History,
+        module: "LoginHistories",
+        actions: ["View", "Manage"],
+      },
+      {
+        title: "گزارش‌های امنیتی",
+        href: "/dashboard/security-audits",
+        icon: ShieldCheck,
+        module: "SecurityAudits",
+        actions: ["View", "Manage"],
+      },
+    ],
+  },
+  {
+    title: "تنظیمات حساب",
+    icon: Settings,
+    items: [
+      {
+        title: "بازیابی رمز عبور",
+        href: "/dashboard/reset-password",
+        icon: Settings,
+        alwaysVisible: true,
+      },
+    ],
+  },
+];
 
 function isItemActive(
   pathname: string,
