@@ -20,6 +20,15 @@ const links = [
 export default function MobileNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 1023px)");
+    const update = () => setIsMobile(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -41,7 +50,7 @@ export default function MobileNav() {
   if (pathname.startsWith("/dashboard")) return null;
 
   return (
-    <div className="relative z-[60] flex h-20 items-center justify-between gap-2 bg-white px-3 dark:bg-gray-900 md:hidden sm:px-4">
+    <div className="relative z-[60] flex h-20 items-center justify-between gap-2 bg-white px-3 dark:bg-gray-900 lg:hidden sm:px-4">
       <button
         type="button"
         onClick={() => setOpen(true)}
@@ -58,7 +67,7 @@ export default function MobileNav() {
       </Link>
 
       <div className="min-w-0 [&>div]:!gap-1 [&>div]:!border-0 [&>div]:!bg-transparent [&>div]:!p-0 [&>div]:!shadow-none">
-        <ProfileNav />
+        {isMobile && <ProfileNav />}
       </div>
 
       {open && (
