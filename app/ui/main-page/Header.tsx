@@ -1,59 +1,65 @@
-import Image from "next/image"
-import Navigation from "./Navigation"
+import Image from "next/image";
+import Navigation from "./Navigation";
 
 const Header = () => {
   return (
     <section className="w-full bg-gray-50 dark:bg-gray-900">
-      <div className="w-full bg-elf dark:bg-[#25403c]">
+      <div className="w-full bg-elf dark:bg-[#152422]">
         <div className="flex flex-col">
           <Navigation />
-          <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 lg:gap-20 px-4 xl:px-24">
-            {/* Content */}
-            <div className="w-full md:w-1/2 flex justify-center items-center text-center py-6 md:py-10">
-              <h1 className="w-2/3 text-xl md:text-4xl lg:text-5xl xl:text-7xl font-MorabbaBold text-gray-900 dark:text-gray-50">
-                الهـام بخشیـــدن به زندگـی با{' '}
-                <span className="inline-block mt-3 bg-mango dark:bg-elf px-3 py-1 rounded-xl text-elf dark:text-mango">
+          <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center gap-2 px-4 py-5 sm:gap-5 sm:px-6 md:flex-row md:gap-8 md:px-8 md:py-8 lg:gap-12">
+            <div className="flex w-full items-center justify-center py-3 text-center md:w-1/2 md:py-8">
+              <h1 className="w-full max-w-xl text-2xl font-MorabbaBold leading-relaxed text-white sm:text-3xl md:text-4xl lg:text-5xl">
+                الهـام بخشیـــدن به زندگـی با{" "}
+                <span className="mt-2 inline-block rounded-xl bg-mango px-3 py-1.5 text-elf dark:bg-mango-900 dark:text-greenDark">
                   موسیقی
                 </span>
               </h1>
             </div>
 
-            {/* Hero Image */}
-            <div className="w-full md:w-1/2 p-3 sm:p-5 flex justify-center md:justify-end">
+            <div className="flex w-full justify-center md:w-1/2 md:justify-end">
               <Image
-                src="/images/Header-Vector.png"
-                alt="Hero illustration"
-                width={500}
-                height={500}
-                className="h-auto w-full max-w-[420px] md:max-w-full"
+                src="/images/header-vector.svg"
+                alt="تصویرسازی سازهای موسیقی و نت‌ها"
+                width={520}
+                height={440}
                 priority
+                className="block h-auto w-full max-w-[260px] object-contain sm:max-w-[310px] md:max-w-[340px] lg:max-w-[370px]"
+              />
+              <Image
+                src="/images/header-vector-dark.svg"
+                alt="تصویرسازی سازهای موسیقی و نت‌ها"
+                width={520}
+                height={440}
+                priority
+                className="hidden h-auto w-full max-w-[260px] object-contain dark:block sm:max-w-[310px] md:max-w-[340px] lg:max-w-[370px]"
               />
             </div>
           </div>
-          {/* Footer Shape */}
-          <div className="w-full ">
+          <div className="w-full">
             <Image
               src="/images/shapes/header.png"
-              alt="Decorative shape"
+              alt=""
+              aria-hidden="true"
               width={1920}
               height={169}
-              className="w-full block dark:hidden"
+              className="block w-full dark:hidden"
               priority
             />
             <Image
               src="/images/shapes/header-dark.png"
-              alt="Decorative shape"
+              alt=""
+              aria-hidden="true"
               width={1920}
               height={169}
-              className="w-full hidden dark:block"
+              className="hidden w-full dark:block"
               priority
             />
           </div>
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Header
-
+export default Header;
