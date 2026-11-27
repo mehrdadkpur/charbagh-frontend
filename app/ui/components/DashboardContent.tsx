@@ -165,24 +165,34 @@ export default function DashboardContent() {
           <h2 id="dashboard-shortcuts-title" className="text-lg font-bold text-gray-900 dark:text-white">دسترسی سریع</h2>
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">ورود مستقیم به بخش‌های پرکاربرد مدیریت</p>
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {shortcuts.filter((item) => hasPermission(permissionKeys, item.module, item.actions)).map(({ title, description, href, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className="group flex min-w-0 items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-elf/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-elf/50 dark:border-gray-800 dark:bg-gray-950 dark:hover:border-elf/50"
-            >
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-elf/10 text-elf transition-colors group-hover:bg-elf group-hover:text-white dark:bg-elf/15">
-                <Icon size={22} />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-bold text-gray-800 dark:text-gray-100">{title}</span>
-                <span className="mt-1 block text-xs leading-5 text-gray-500 dark:text-gray-400">{description}</span>
-              </span>
-              <ArrowLeft size={17} className="shrink-0 text-gray-400 transition-transform group-hover:-translate-x-1 group-hover:text-elf" />
-            </Link>
-          ))}
-        </div>
+        {loading ? (
+          <p className="rounded-2xl border border-dashed border-gray-200 px-4 py-6 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">
+            در حال بررسی دسترسی‌های شما...
+          </p>
+        ) : shortcuts.some((item) => hasPermission(permissionKeys, item.module, item.actions)) ? (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {shortcuts.filter((item) => hasPermission(permissionKeys, item.module, item.actions)).map(({ title, description, href, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                className="group flex min-w-0 items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-elf/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-elf/50 dark:border-gray-800 dark:bg-gray-950 dark:hover:border-elf/50"
+              >
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-elf/10 text-elf transition-colors group-hover:bg-elf group-hover:text-white dark:bg-elf/15">
+                  <Icon size={22} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-bold text-gray-800 dark:text-gray-100">{title}</span>
+                  <span className="mt-1 block text-xs leading-5 text-gray-500 dark:text-gray-400">{description}</span>
+                </span>
+                <ArrowLeft size={17} className="shrink-0 text-gray-400 transition-transform group-hover:-translate-x-1 group-hover:text-elf" />
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-2xl border border-dashed border-gray-200 px-4 py-6 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">
+            در حال حاضر دسترسی سریع فعالی برای حساب شما وجود ندارد.
+          </p>
+        )}
       </section>
     </div>
   );
