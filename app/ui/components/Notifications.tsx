@@ -1,9 +1,11 @@
-'use client';
+"use client";
+
 import { useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
 import Link from "next/link";
+import { Bell, MessageCircle, Newspaper } from "lucide-react";
+import toast from "react-hot-toast";
 import { fetchPendingBlogs, fetchGuidances } from "@/lib/requests";
-import { getStatusDisplayText } from '@/helper/notification-status';
+import { getStatusDisplayText } from "@/helper/notification-status";
 import { IBlog, IContact } from "@/lib/types";
 import { API_BASE_URL } from "@/lib/config";
 
@@ -13,148 +15,213 @@ const Notifications = () => {
   const [isOpen, setIsOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
 
-  const unreadGuides = guidances.filter(g => g.status == 0);
-  const unconfirmedBlogs = blogs.filter(b => b.status == 0);
-
+  const unreadGuides = guidances.filter((guide) => Number(guide.status) === 0);
+  const unconfirmedBlogs = blogs.filter((blog) => Number(blog.status) === 0);
   const totalNotifications = unreadGuides.length + unconfirmedBlogs.length;
 
-  const loadData = async () => {
-    try {
-      const [guidanceRes, blogRes] = await Promise.all([fetchGuidances(), fetchPendingBlogs()]);
-   
-      setGuidances(guidanceRes || []);
-      setBlogs(blogRes || []);
-    } catch (error) {
-      console.error("Error loading data:", error);
-    }
-  };
-
   useEffect(() => {
-    loadData();
-    const interval = setInterval(loadData, 60000);
-    return () => clearInterval(interval);
+    let cancelled = false;
+
+    const loadData = async () => {
+      // اعلان‌های مدیریتی فقط برای نشست واردشده دریافت می‌شوند.
+      const token =
+        localStorage.getItem("accessToken") ??
+        localStorage.getItem("token");
+
+      if (!token) {
+        if (!cancelled) {
+          setGuidances([]);
+          setBlogs([]);
+        }
+        return;
+      }
+
+      try {
+        const [guidanceResult, blogResult] = await Promise.all([
+          fetchGuidances(),
+          fetchPendingBlogs(),
+        ]);
+
+        if (!cancelled) {
+          setGuidances(guidanceResult || []);
+          setBlogs(blogResult || []);
+        }
+      } catch (error) {
+        console.error("Error loading notifications:", error);
+      }
+    };
+
+    void loadData();
+    const intervalId = window.setInterval(() => void loadData(), 60000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   const updateGuidanceStatus = async (id: string) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/Guidance/update/${id}`, {
+      const token =
+        localStorage.getItem("accessToken") ??
+        localStorage.getItem("token");
+
+      const response = await fetch(`${API_BASE_URL}/api/Guidance/update/${id}`, {
         method: "PUT",
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ status: 1 }),
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'خطا در بروزرسانی وضعیت');
+      if (!response.ok) {
+        let message = "خطا در به‌روزرسانی وضعیت";
+        try {
+          const errorData = await response.json();
+          message = errorData.message || message;
+        } catch {
+          // پاسخ خطا ممکن است بدنه JSON نداشته باشد.
+        }
+        throw new Error(message);
       }
 
-      setGuidances(prev => prev.map(g => g.id === id ? { ...g, status: 1 } : g));
-      toast.success('وضعیت با موفقیت بروزرسانی شد');
+      setGuidances((previous) =>
+        previous.map((guide) =>
+          guide.id === id ? { ...guide, status: 1 } : guide,
+        ),
+      );
+      toast.success("وضعیت درخواست با موفقیت به‌روزرسانی شد");
     } catch (error) {
-      console.error('Error updating status:', error);
-      toast.error('خطا در بروزرسانی وضعیت');
+      console.error("Error updating guidance status:", error);
+      toast.error(
+        error instanceof Error ? error.message : "خطا در به‌روزرسانی وضعیت",
+      );
     }
   };
-  
+
   return (
     <div className="relative font-Dana" ref={notificationRef}>
       <button
         type="button"
-        className="relative inline-flex items-center p-2 sm:p-3 text-sm font-medium text-gray-900 dark:text-gray-50 rounded-lg hover:bg-mango/10 focus:ring-2 focus:ring-mango/20 transition-all duration-300 z-50"
-        onClick={() => setIsOpen(!isOpen)}
+        aria-label={totalNotifications > 0 ? `اعلان‌ها، ${totalNotifications} مورد جدید` : "اعلان‌ها"}
+        aria-expanded={isOpen}
+        aria-controls="notification-panel"
+        onClick={() => setIsOpen((previous) => !previous)}
+        className="relative flex size-10 shrink-0 items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-elf/50 dark:text-gray-300 dark:hover:bg-gray-800"
       >
-        <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022 23.848 23.848 0 0 0 5.455 1.31m5.714 0a3 3 0 1 1-5.714 0" />
-        </svg>
+        <Bell size={20} aria-hidden="true" />
         {totalNotifications > 0 && (
-          <div className="absolute inline-flex items-center justify-center w-4 h-4 md:w-6 md:h-6 text-xs font-DanaMedium text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2">
-            {totalNotifications}
-          </div>
+          <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-red-500 px-1 text-[10px] font-bold leading-none text-white dark:border-gray-950">
+            {totalNotifications > 99 ? "۹۹+" : totalNotifications.toLocaleString("fa-IR")}
+          </span>
         )}
       </button>
 
       {isOpen && (
-  <div className="absolute -right-28 mt-2 w-64 sm:w-72 rounded-xl bg-white dark:bg-gray-900 shadow-lg ring-1 ring-black ring-opacity-5 z-50 text-gray-700 dark:text-white">
-    <div className="py-2 max-h-[70vh] overflow-y-auto flex flex-col gap-2">
-
-      {/* 🟢 مشاوره‌ها */}
-      <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
-        <h4 className="text-xs sm:text-sm font-DanaMedium px-4 py-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 flex items-center gap-2">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          درخواست‌های مشاوره
-        </h4>
-
-        {unreadGuides.length > 0 ? (
-          unreadGuides.map((guide:IContact) => {
-            const formattedMobile = guide.mobile.replace(/(\d{4})(\d{3})(\d{4})/, '$1-$2-$3');
-            return (
-              <button
-                key={guide.id}
-                onClick={() => updateGuidanceStatus(guide.id)}
-                className="w-full text-right px-4 py-3 hover:bg-green-50 dark:hover:bg-green-800/30 transition-colors duration-200"
-              >
-                <div className="flex flex-col gap-1 text-sm">
-                  <span>{guide.fullName}</span>
-                  <span className="text-base font-Dana">{formattedMobile}</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {getStatusDisplayText(guide.status)}
-                  </span>
-                </div>
-              </button>
-            );
-          })
-        ) : (
-          <div className="text-sm px-4 py-4 text-center text-gray-600 dark:text-gray-300">
-            درخواست مشاوره‌ای وجود ندارد
+        <section
+          id="notification-panel"
+          aria-label="فهرست اعلان‌ها"
+          className="fixed left-3 right-3 top-[4.5rem] z-[70] max-h-[min(70vh,34rem)] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-3 text-gray-800 shadow-2xl shadow-gray-950/15 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100 sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-3 sm:w-80 sm:max-w-[calc(100vw-2rem)]"
+        >
+          <div className="mb-3 flex items-center justify-between gap-3 px-1">
+            <h3 className="text-sm font-bold">اعلان‌ها</h3>
+            <span className="rounded-full bg-elf/10 px-2.5 py-1 text-xs font-semibold text-elf dark:bg-elf/20">
+              {totalNotifications.toLocaleString("fa-IR")} مورد جدید
+            </span>
           </div>
-        )}
-      </div>
 
-      {/* 🔵 بلاگ‌ها */}
-      <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
-        <h4 className="text-xs sm:text-sm font-DanaMedium px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 flex items-center gap-2">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h4m1 8a9 9 0 110-18 9 9 0 010 18z" />
-          </svg>
-          پست‌های تایید نشده
-        </h4>
-
-        {unconfirmedBlogs.length > 0 ? (
-          unconfirmedBlogs.map((blog:any) => (
-            <Link
-              key={blog.id}
-              href={`/dashboard/blogs/${blog.id}`}
-              className="w-full block text-right px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-800/30 transition-colors duration-200"
-            >
-              <div className="flex flex-col gap-1 text-sm">
-                <span>{`${blog.user.firstname} ${blog.user.lastname}`}</span>
-                <span className="text-base font-Dana">{blog.blog_title}</span>
-              </div>
-            </Link>
-          ))
-        ) : (
-          <div className="text-sm px-4 py-4 text-center text-gray-600 dark:text-gray-300">
-            پست تایید نشده‌ای وجود ندارد
+          <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800">
+            <h4 className="flex items-center gap-2 bg-emerald-50 px-3 py-2.5 text-xs font-bold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
+              <MessageCircle size={15} />
+              درخواست‌های مشاوره
+            </h4>
+            {unreadGuides.length > 0 ? (
+              <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+                {unreadGuides.map((guide) => {
+                  const mobile = (guide.mobile ?? "").replace(
+                    /(\d{4})(\d{3})(\d{4})/,
+                    "$1-$2-$3",
+                  );
+                  return (
+                    <li key={guide.id}>
+                      <button
+                        type="button"
+                        onClick={() => void updateGuidanceStatus(guide.id)}
+                        className="w-full px-3 py-3 text-right transition-colors hover:bg-emerald-50/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-elf dark:hover:bg-emerald-950/20"
+                      >
+                        <span className="block text-sm font-semibold">{guide.fullName}</span>
+                        {mobile && <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400" dir="ltr">{mobile}</span>}
+                        <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+                          {getStatusDisplayText(guide.status)}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="px-3 py-4 text-center text-xs text-gray-500 dark:text-gray-400">
+                درخواست مشاوره جدیدی وجود ندارد
+              </p>
+            )}
           </div>
-        )}
-      </div>
-    </div>
-  </div>
-)}
 
-
+          <div className="mt-3 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800">
+            <h4 className="flex items-center gap-2 bg-sky-50 px-3 py-2.5 text-xs font-bold text-sky-800 dark:bg-sky-950/50 dark:text-sky-300">
+              <Newspaper size={15} />
+              مطالب تأییدنشده
+            </h4>
+            {unconfirmedBlogs.length > 0 ? (
+              <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+                {unconfirmedBlogs.map((blog) => (
+                  <li key={blog.id}>
+                    <Link
+                      href={`/dashboard/blogs/${blog.id}`}
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-3 transition-colors hover:bg-sky-50/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-elf dark:hover:bg-sky-950/20"
+                    >
+                      <span className="block text-xs text-gray-500 dark:text-gray-400">
+                        {blog.user ? `${blog.user.firstname ?? ""} ${blog.user.lastname ?? ""}`.trim() : "کاربر"}
+                      </span>
+                      <span className="mt-1 block text-sm font-semibold">{blog.blog_title}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="px-3 py-4 text-center text-xs text-gray-500 dark:text-gray-400">
+                مطلب تأییدنشده‌ای وجود ندارد
+              </p>
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 };
