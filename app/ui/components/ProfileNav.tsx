@@ -168,7 +168,6 @@ export default function ProfileNav() {
       );
     } finally {
       clearAuthentication();
-      localStorage.removeItem("theme");
 
       setUser(null);
       setIsOpen(false);
