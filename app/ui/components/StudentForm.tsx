@@ -65,7 +65,7 @@ export default function StudentForm({
     }
 
     if (!values.registrationDate) {
-      setFormError("تاریخ استخدام را وارد کنید.");
+      setFormError("تاریخ ثبت‌نام را وارد کنید.");
       return;
     }
     setSubmitting(true);
@@ -79,7 +79,7 @@ export default function StudentForm({
       setFormError(
         error instanceof Error
           ? error.message
-          : "ذخیره اطلاعات مدرس ناموفق بود."
+          : "ذخیره اطلاعات هنرآموز ناموفق بود."
       );
     } finally {
       setSubmitting(false);
