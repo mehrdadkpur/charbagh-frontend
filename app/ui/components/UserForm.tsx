@@ -18,6 +18,7 @@ import {
 import ShamsiDatePicker from "./ShamsiDatePicker";
 import StatusBadge from "@/app/ui/components/UserStatusBadge";
 import { ShamsiDate } from "@/lib/shamsiDate";
+import { useCurrentPermissions } from "@/lib/useCurrentPermissions";
 
 export interface INationalityOption {
   id: string;
@@ -43,6 +44,7 @@ interface UserFormProps {
     nationalities: INationalityOption[];
     createdAt?: string | Date | null;
     status?: number;
+    permissionAction: "Create" | "Update";
     loading: boolean;
 
     handleChange: (
@@ -68,13 +70,22 @@ const UserForm = ({
   nationalities,
   createdAt,
   status,
+  permissionAction,
   loading,
   handleChange,
   handleBirthDateChange,
   handleSubmit,
 }: UserFormProps) => {
+  const { can, loading: permissionLoading } = useCurrentPermissions();
+  const canSubmit = !permissionLoading && can("Users", [permissionAction]);
+
+  const guardedSubmit: UserFormProps["handleSubmit"] = (event) => {
+    if (!canSubmit) { event.preventDefault(); return; }
+    handleSubmit(event);
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={guardedSubmit} className="space-y-6">
       {/* Account summary is shown only while editing an existing account. */}
       {(createdAt !== undefined || status !== undefined) && (
       <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-7">
@@ -283,6 +294,8 @@ const UserForm = ({
         </div>
       </section>
 
+      {!permissionLoading && !canSubmit && <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">مجوز لازم برای {permissionAction === "Create" ? "ایجاد" : "ویرایش"} کاربر را ندارید.</p>}
+
       {/* Form actions */}
       <div className="sticky bottom-3 z-10 flex flex-col-reverse gap-3 rounded-2xl border border-gray-200 bg-white/95 p-4 shadow-lg backdrop-blur sm:flex-row sm:justify-end dark:border-gray-800 dark:bg-gray-900/95">
         <Link
@@ -295,7 +308,7 @@ const UserForm = ({
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || permissionLoading || !canSubmit}
           className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 text-sm font-DanaMedium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Save size={17} />
