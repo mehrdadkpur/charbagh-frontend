@@ -30,6 +30,7 @@ import {
 
 import { apiFetch } from "@/lib/apiFetch";
 import { ApiError } from "@/helper/ApiError";
+import { useCurrentPermissions } from "@/lib/useCurrentPermissions";
 import type { IStudent, IStudentDetails } from "@/lib/types";
 
 const STUDENT_STATUS = { Pending: 0, Active: 1, Suspended: 2, Blocked: 3 } as const;
@@ -195,6 +196,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const { can } = useCurrentPermissions();
 
   const [parents, setParents] = useState<StudentParentItem[]>([]);
   const [parentsLoading, setParentsLoading] = useState(false);
@@ -310,7 +312,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
   };
 
   const connectParent = async () => {
-    if (!student || !selectedParentId || !canHaveParent || parentBusy) return;
+    if (!student || !selectedParentId || !canHaveParent || !can("StudentParents", ["Create"]) || parentBusy) return;
     setParentBusy(true);
     try {
       await apiFetch<unknown>(parentApi.connect, {
@@ -328,6 +330,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
   };
 
   const disconnectParent = async (item: StudentParentItem) => {
+    if (!can("StudentParents", ["Delete"])) return;
     const result = await Swal.fire({ title: "قطع ارتباط والد", text: `ارتباط ${item.parent.firstName} ${item.parent.lastName} با این هنرآموز قطع شود؟`, icon: "warning", showCancelButton: true, confirmButtonText: "قطع ارتباط", cancelButtonText: "انصراف", reverseButtons: true });
     if (!result.isConfirmed || parentBusy) return;
     setParentBusy(true);
@@ -366,8 +369,8 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
                 <div className="mt-3"><span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset ${getStatusClass(student.status)}`}>{getStatusLabel(student.status)}</span></div>
               </div></div>
               <div className="flex flex-wrap items-center gap-2">
-                <Link href={`/dashboard/students/${student.id}/edit`} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 text-sm font-medium text-gray-700 transition hover:border-elf/30 hover:bg-elf/5 hover:text-elf dark:border-gray-700 dark:text-gray-200 dark:hover:bg-elf/10 dark:hover:text-emerald-300"><Pencil size={16} />ویرایش اطلاعات</Link>
-                {availableActions.map((action) => { const Icon = action.icon; return <button key={action.key} type="button" disabled={busy} onClick={() => void handleAction(action.key)} className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${action.className}`}><Icon size={16} />{action.label}</button>; })}
+                {can("Students", ["Update"]) && <Link href={`/dashboard/students/${student.id}/edit`} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 text-sm font-medium text-gray-700 transition hover:border-elf/30 hover:bg-elf/5 hover:text-elf dark:border-gray-700 dark:text-gray-200 dark:hover:bg-elf/10 dark:hover:text-emerald-300"><Pencil size={16} />ویرایش اطلاعات</Link>}
+                {can("Students", ["Manage"]) && availableActions.map((action) => { const Icon = action.icon; return <button key={action.key} type="button" disabled={busy} onClick={() => void handleAction(action.key)} className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${action.className}`}><Icon size={16} />{action.label}</button>; })}
               </div>
             </div>
           </section>
@@ -398,7 +401,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
           <section className="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <div className="flex flex-col gap-3 border-b border-gray-100 px-4 py-4 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between sm:px-5">
               <div className="flex items-center gap-2"><div className="flex size-9 items-center justify-center rounded-xl bg-elf/10 text-elf dark:text-emerald-300"><UsersRound size={19} /></div><div><h2 className="font-semibold text-gray-900 dark:text-white">والدین و سرپرستان</h2><p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{age === null ? "سن هنرآموز مشخص نیست" : `سن هنرآموز: ${age} سال`}</p></div></div>
-              {canHaveParent && <button type="button" onClick={() => { setParentModalOpen(true); setParentsError(null); }} className="inline-flex h-10 items-center justify-center gap-2 self-start rounded-xl bg-elf px-4 text-sm font-semibold text-white transition hover:opacity-90"><Plus size={17} />اتصال والد</button>}
+              {canHaveParent && can("StudentParents", ["Create"]) && <button type="button" onClick={() => { setParentModalOpen(true); setParentsError(null); }} className="inline-flex h-10 items-center justify-center gap-2 self-start rounded-xl bg-elf px-4 text-sm font-semibold text-white transition hover:opacity-90"><Plus size={17} />اتصال والد</button>}
             </div>
             {!canHaveParent ? (
               <div className="px-5 py-10 text-center"><ShieldCheck size={28} className="mx-auto text-gray-400" /><p className="mt-3 text-sm font-medium text-gray-700 dark:text-gray-200">{age === null ? "برای تعیین امکان اتصال والد، تاریخ تولد معتبر لازم است." : "هنرآموز ۱۸ سال یا بیشتر دارد؛ اتصال والد از این بخش امکان‌پذیر نیست."}</p></div>
@@ -412,7 +415,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
               <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {parents.map((item) => <article key={item.id} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                   <div className="flex min-w-0 items-center gap-3"><ParentAvatar parent={item.parent} /><div className="min-w-0"><Link href={`/dashboard/parents/${item.parent.id}`} className="block truncate font-semibold text-gray-900 transition hover:text-elf dark:text-white dark:hover:text-emerald-300">{item.parent.firstName} {item.parent.lastName}</Link><div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400"><span>کد ملی: {item.parent.nationalIdentificationNumber || "ثبت نشده"}</span>{item.parent.mobile && <span className="inline-flex items-center gap-1"><Phone size={12} />{item.parent.mobile}</span>}</div></div></div>
-                  <div className="flex items-center justify-between gap-3 sm:justify-end"><span className="rounded-full bg-elf/10 px-3 py-1.5 text-xs font-medium text-elf dark:text-emerald-300">{relationshipLabel(item.relationship)}</span><button type="button" disabled={parentBusy} onClick={() => void disconnectParent(item)} title="قطع ارتباط" className="inline-flex size-9 items-center justify-center rounded-lg border border-red-200 text-red-600 transition hover:bg-red-50 disabled:opacity-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/30"><Unlink size={16} /></button></div>
+                  <div className="flex items-center justify-between gap-3 sm:justify-end"><span className="rounded-full bg-elf/10 px-3 py-1.5 text-xs font-medium text-elf dark:text-emerald-300">{relationshipLabel(item.relationship)}</span>{can("StudentParents", ["Delete"]) && <button type="button" disabled={parentBusy} onClick={() => void disconnectParent(item)} title="قطع ارتباط" className="inline-flex size-9 items-center justify-center rounded-lg border border-red-200 text-red-600 transition hover:bg-red-50 disabled:opacity-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/30"><Unlink size={16} /></button>}</div>
                 </article>)}
               </div>
             )}
@@ -420,7 +423,7 @@ export default function StudentDetails({ studentId }: { studentId: string }) {
         </>
       )}
 
-      {parentModalOpen && canHaveParent && (
+      {parentModalOpen && canHaveParent && can("StudentParents", ["Create"]) && (
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-3" role="dialog" aria-modal="true" aria-labelledby="connect-parent-title">
           <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900">
             <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-800"><div><h2 id="connect-parent-title" className="font-semibold text-gray-900 dark:text-white">اتصال والد به هنرآموز</h2><p className="mt-1 text-xs text-gray-500 dark:text-gray-400">ابتدا والد را جست‌وجو و سپس نسبت را مشخص کنید.</p></div><button type="button" onClick={() => setParentModalOpen(false)} className="flex size-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="بستن"><X size={18} /></button></div>
