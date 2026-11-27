@@ -21,6 +21,7 @@ import {
 
 import { apiFetch } from "@/lib/apiFetch";
 import { ApiError } from "@/helper/ApiError";
+import { useCurrentPermissions } from "@/lib/useCurrentPermissions";
 import type { ITeacher } from "@/lib/types";
 
 const TEACHER_STATUS = {
@@ -263,6 +264,7 @@ export default function TeacherDetails({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const { can } = useCurrentPermissions();
 
   const loadTeacher = useCallback(async () => {
     setLoading(true);
@@ -483,15 +485,15 @@ export default function TeacherDetails({
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <Link
+                {can("Teachers", ["Update"]) && <Link
                   href={`/dashboard/teachers/${teacher.id}/edit`}
                   className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 text-sm font-medium text-gray-700 transition hover:border-elf/30 hover:bg-elf/5 hover:text-elf dark:border-gray-700 dark:text-gray-200 dark:hover:bg-elf/10 dark:hover:text-emerald-300"
                 >
                   <Pencil size={16} />
                   ویرایش اطلاعات
-                </Link>
+                </Link>}
 
-                {availableActions.map((action) => {
+                {can("Teachers", ["Manage"]) && availableActions.map((action) => {
                   const Icon = action.icon;
 
                   return (
