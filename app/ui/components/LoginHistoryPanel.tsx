@@ -7,8 +7,8 @@ import { Clock3, Laptop, MapPin, RefreshCw, ShieldCheck, ShieldAlert } from "luc
 
 type LoginHistory = {
   id: string;
-  userId: string;
-  userFullName: string;
+  userId: string | null;
+  userFullName: string | null;
   mobile: string;
   loginAt: string;
   logoutAt: string | null;
@@ -74,6 +74,7 @@ export default function LoginHistoryPanel({ userId }: { userId?: string }) {
             <p>زمان خروج: <span className="font-medium">{dateText(item.logoutAt)}</span></p>
             <p className="flex items-center gap-1"><MapPin size={13}/> IP: <span dir="ltr">{item.ipAddress || "ثبت نشده"}</span></p>
             <p className="flex items-center gap-1"><Laptop size={13}/> دستگاه: {item.deviceName || "نامشخص"}</p>
+            <p className="sm:col-span-2 lg:col-span-3 break-words">مرورگر و سیستم‌عامل: <span dir="auto">{item.userAgent || "ثبت نشده"}</span></p>
             {item.failureReason && <p className="sm:col-span-2 lg:col-span-3 text-red-600 dark:text-red-300">علت: {item.failureReason}</p>}
           </div>
         </article>)}
