@@ -41,6 +41,8 @@ export interface UserFormValues {
 interface UserFormProps {
     fields: UserFormValues;
     nationalities: INationalityOption[];
+    createdAt?: string | Date | null;
+    status?: number;
     loading: boolean;
 
     handleChange: (
@@ -73,7 +75,8 @@ const UserForm = ({
 }: UserFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Account summary */}
+      {/* Account summary is shown only while editing an existing account. */}
+      {(createdAt !== undefined || status !== undefined) && (
       <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -86,7 +89,7 @@ const UserForm = ({
             </p>
           </div>
 
-          <StatusBadge status={status} />
+          <StatusBadge status={status ?? 0} />
         </div>
 
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -107,6 +110,7 @@ const UserForm = ({
           />
         </div>
       </section>
+      )}
 
       {/* Personal details */}
       <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-7">
