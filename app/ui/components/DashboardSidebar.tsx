@@ -161,8 +161,8 @@ const MENU_GROUPS: MenuGroup[] = [
         title: "گزارش‌های مالی",
         href: "/dashboard/financial-reports",
         icon: Activity,
-        module: "Invoices",
-        actions: ["View", "Manage"],
+        module: "Reports",
+        actions: ["View"],
       },
       {
         title: "پرداخت‌ها",
