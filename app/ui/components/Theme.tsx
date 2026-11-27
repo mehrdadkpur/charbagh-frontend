@@ -13,6 +13,17 @@ const ThemeSwitcher = () => {
     document.documentElement.classList.toggle("dark", darkMode);
     setIsDark(darkMode);
     setReady(true);
+
+    const syncTheme = () => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    };
+    window.addEventListener("charbagh-theme-change", syncTheme);
+    window.addEventListener("storage", syncTheme);
+
+    return () => {
+      window.removeEventListener("charbagh-theme-change", syncTheme);
+      window.removeEventListener("storage", syncTheme);
+    };
   }, []);
 
   const toggleTheme = () => {
@@ -20,6 +31,7 @@ const ThemeSwitcher = () => {
     document.documentElement.classList.toggle("dark", nextDark);
     localStorage.setItem("theme", nextDark ? "dark" : "light");
     setIsDark(nextDark);
+    window.dispatchEvent(new Event("charbagh-theme-change"));
   };
 
   return (
