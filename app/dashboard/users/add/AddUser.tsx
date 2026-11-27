@@ -248,6 +248,7 @@ const AddUser = () => {
             fields={fields}
             nationalities={nationalities}
             loading={loading}
+            permissionAction="Create"
             handleChange={handleChange}
             handleBirthDateChange={handleBirthDateChange}
             handleSubmit={handleSubmit}
