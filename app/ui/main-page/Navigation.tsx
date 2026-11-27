@@ -3,10 +3,20 @@
 import Link from "next/link";
 import Profile from "@/app/ui/components/ProfileNav";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 const Navigation = () => {
   const pathname = usePathname();
+  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDesktop(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
 
   const navItems = [
     { href: "/courses", label: "دوره‌ها" },
@@ -18,7 +28,7 @@ const Navigation = () => {
   ];
 
   return (
-    <header className="hidden md:flex items-center justify-between w-full px-6 py-3">
+    <header className="hidden lg:flex items-center justify-between w-full px-6 py-3">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-x-2">
         <Image
@@ -52,7 +62,7 @@ const Navigation = () => {
       </nav>
 
       {/* Profile / Account */}
-      <Profile />
+      {isDesktop && <Profile />}
     </header>
   );
 };
