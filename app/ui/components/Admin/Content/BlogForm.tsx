@@ -97,7 +97,7 @@ export default function BlogForm({ blogId }: Props) {
   return (
     <main dir="rtl" className="mx-auto mt-6 w-full max-w-4xl space-y-5 px-4 pb-10">
       <h1 className="text-center text-2xl font-bold">{isEdit ? "ویرایش مقاله" : "ایجاد مقاله جدید"}</h1>
-      <form onSubmit={submit} className="space-y-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+      <form onSubmit={submit} className="space-y-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-gray-900">
         <label className="block space-y-2">
           <span className="text-sm font-semibold">دسته‌بندی</span>
           <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)} required className="w-full rounded-xl border bg-transparent p-3">
@@ -118,9 +118,9 @@ export default function BlogForm({ blogId }: Props) {
           <input value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} type="url" placeholder="https://..." className="w-full rounded-xl border bg-transparent p-3" />
         </label>
         <p className="text-xs leading-6 text-gray-500">در API فعلی بارگذاری فایل وجود ندارد؛ تصویر از طریق آدرس URL ثبت می‌شود.</p>
-        <div className="flex flex-wrap gap-3">
-          <button disabled={saving} className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white disabled:opacity-50">{saving ? "در حال ذخیره..." : "ذخیره"}</button>
-          <Link href={blogId ? `/dashboard/blogs/${blogId}` : "/dashboard/blogs"} className="rounded-xl bg-gray-200 px-6 py-3 text-gray-800 dark:bg-gray-700 dark:text-white">انصراف</Link>
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:flex-wrap">
+          <button disabled={saving} className="min-h-11 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white disabled:opacity-50">{saving ? "در حال ذخیره..." : "ذخیره"}</button>
+          <Link href={blogId ? `/dashboard/blogs/${blogId}` : "/dashboard/blogs"} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-gray-200 px-6 py-3 text-gray-800 dark:bg-gray-700 dark:text-white">انصراف</Link>
         </div>
       </form>
     </main>
