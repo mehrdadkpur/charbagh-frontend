@@ -24,11 +24,10 @@ const Notifications = () => {
 
     const loadData = async () => {
       // اعلان‌های مدیریتی فقط برای نشست واردشده دریافت می‌شوند.
-      const token =
-        localStorage.getItem("accessToken") ??
-        localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
+      const branchId = localStorage.getItem("currentBranchId");
 
-      if (!token) {
+      if (!token || !branchId) {
         if (!cancelled) {
           setGuidances([]);
           setBlogs([]);
@@ -87,15 +86,15 @@ const Notifications = () => {
 
   const updateGuidanceStatus = async (id: string) => {
     try {
-      const token =
-        localStorage.getItem("accessToken") ??
-        localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
+      const branchId = localStorage.getItem("currentBranchId");
 
       const response = await fetch(`${API_BASE_URL}/api/Guidance/update/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(branchId ? { "X-Branch-Id": branchId } : {}),
         },
         body: JSON.stringify({ status: 1 }),
       });
