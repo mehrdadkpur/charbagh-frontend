@@ -19,6 +19,7 @@ import StatusBadge from "@/app/ui/components/UserStatusBadge";
 import { getUserGender } from "@/helper/UserGender";
 import { ShamsiDate } from "@/lib/shamsiDate";
 import { apiFetch, ApiError } from "@/lib/apiFetch";
+import { useCurrentPermissions } from "@/lib/useCurrentPermissions";
 
 const EMPTY = "ثبت نشده است";
 
@@ -67,6 +68,7 @@ export default function UserDetailsPage() {
   const [retry,setRetry] = useState(0);
   const [imageError,setImageError] = useState(false);
   const [busy,setBusy] = useState(false);
+  const { can } = useCurrentPermissions();
 
   const load = useCallback(async () => {
     if (!id) { setError("شناسه کاربر معتبر نیست."); setLoading(false); return; }
@@ -116,7 +118,7 @@ export default function UserDetailsPage() {
         <div><div className="mb-2 flex items-center gap-2 text-sm text-gray-500"><Link href="/dashboard/users" className="hover:text-elf">کاربران</Link><span>/</span><span className="text-gray-800 dark:text-gray-200">جزئیات کاربر</span></div><h1 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">پرونده کاربر</h1><p className="mt-1 text-sm text-gray-500">اطلاعات هویتی، پروفایل‌های سازمانی و دسترسی‌های کاربر</p></div>
         <div className="flex flex-wrap gap-2">
           <Link href="/dashboard/users" className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"><ArrowRight size={16}/>بازگشت</Link>
-          <Link href={`/dashboard/users/${user.id}/edit`} className="inline-flex items-center gap-2 rounded-xl bg-elf px-4 py-2.5 text-sm font-semibold text-white"><Edit3 size={16}/>ویرایش کاربر</Link>
+          {can("Users", ["Update"]) && <Link href={`/dashboard/users/${user.id}/edit`} className="inline-flex items-center gap-2 rounded-xl bg-elf px-4 py-2.5 text-sm font-semibold text-white"><Edit3 size={16}/>ویرایش کاربر</Link>}
         </div>
       </header>
 
@@ -128,7 +130,7 @@ export default function UserDetailsPage() {
           <div className="sm:pb-2"><StatusBadge status={user.status}/></div>
         </div>
         <div className="mt-5 flex flex-wrap gap-2 border-t border-gray-100 pt-4 dark:border-gray-800">
-          {availableActions.map(action=><button key={action} type="button" disabled={busy} onClick={()=>void changeStatus(action)} className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700 transition hover:border-elf/40 hover:bg-elf/5 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200">{actionLabels[action]}</button>)}
+          {can("Users", ["Manage"]) && availableActions.map(action=><button key={action} type="button" disabled={busy} onClick={()=>void changeStatus(action)} className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700 transition hover:border-elf/40 hover:bg-elf/5 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200">{actionLabels[action]}</button>)}
         </div></div>
       </section>
 
