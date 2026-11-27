@@ -20,6 +20,7 @@ import {
 import StatusBadge from '@/app/ui/components/UserStatusBadge';
 import AuthGuard from '@/app/ui/components/AuthGurad';
 import Loading from '@/app/loading';
+import LoginHistoryPanel from '@/app/ui/components/LoginHistoryPanel';
 
 import { IUser } from '@/lib/types';
 import { API_BASE_URL } from '@/lib/config';
@@ -271,6 +272,9 @@ export default function ProfileDashboard() {
             </div>
           </div>
         </div>
+      </div>
+      <div className="mt-6">
+        <LoginHistoryPanel />
       </div>
     </div>
   );
