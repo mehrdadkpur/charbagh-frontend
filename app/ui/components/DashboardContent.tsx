@@ -17,6 +17,8 @@ import StatCard from "@/app/ui/components/DashboardStats";
 import { fetchStats } from "@/lib/requests";
 import toast from "react-hot-toast";
 import { IStats } from "@/lib/types";
+import { apiFetch } from "@/lib/apiFetch";
+import { extractPermissions, hasPermission, toPermissionKeys, type PermissionResponse } from "@/lib/dashboardPermissions";
 
 const shortcuts = [
   {
@@ -24,58 +26,87 @@ const shortcuts = [
     description: "مشاهده و مدیریت حساب‌های کاربری",
     href: "/dashboard/users",
     icon: Users,
+    module: "Users",
+    actions: ["View", "Manage"],
   },
   {
     title: "مدیریت مدرسان",
     description: "اطلاعات و پرونده مدرسان",
     href: "/dashboard/teachers",
     icon: GraduationCap,
+    module: "Teachers",
+    actions: ["View", "Manage"],
   },
   {
     title: "هنرجویان",
     description: "مشاهده فهرست و پرونده هنرجویان",
     href: "/dashboard/students",
     icon: Users,
+    module: "Students",
+    actions: ["View", "Manage"],
   },
   {
     title: "برنامه‌های آموزشی",
     description: "کلاس‌ها و برنامه‌ریزی آموزشی",
     href: "/dashboard/teaching-plans",
     icon: BookOpen,
+    module: "TeachingPlans",
+    actions: ["View", "Manage"],
   },
   {
     title: "محتوای سایت",
     description: "مقالات، گالری‌ها و مطالب منتشرشده",
     href: "/dashboard/blogs",
     icon: FileText,
+    module: "Blogs",
+    actions: ["View", "Create", "Update", "Delete", "Approve"],
   },
   {
     title: "امور مالی",
     description: "فاکتورها، پرداخت‌ها و گزارش‌ها",
     href: "/dashboard/invoices",
     icon: Wallet,
+    module: "Invoices",
+    actions: ["View", "Manage"],
   },
 ];
 
 export default function DashboardContent() {
   const [stats, setStats] = useState<IStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [permissionKeys, setPermissionKeys] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
     let cancelled = false;
 
-    async function loadStats() {
-      try {
-        const data = await fetchStats();
-        if (!cancelled) setStats(data);
-      } catch {
-        if (!cancelled) toast.error("دریافت آمار داشبورد ناموفق بود.");
-      } finally {
-        if (!cancelled) setLoading(false);
+    async function loadDashboardData() {
+      const [statsResult, permissionsResult] = await Promise.allSettled([
+        fetchStats(),
+        apiFetch<PermissionResponse>("/api/Permissions/current"),
+      ]);
+
+      if (cancelled) return;
+
+      if (statsResult.status === "fulfilled") {
+        setStats(statsResult.value);
+      } else {
+        toast.error("دریافت آمار داشبورد ناموفق بود.");
       }
+
+      if (permissionsResult.status === "fulfilled") {
+        setPermissionKeys(
+          toPermissionKeys(extractPermissions(permissionsResult.value)),
+        );
+      } else {
+        // در صورت خطا، دسترسی‌های سریع به‌صورت پیش‌فرض مخفی می‌مانند.
+        setPermissionKeys(new Set());
+        toast.error("دریافت مجوزهای دسترسی سریع ناموفق بود.");
+      }
+
+      setLoading(false);
     }
 
-    void loadStats();
+    void loadDashboardData();
     return () => {
       cancelled = true;
     };
@@ -135,7 +166,7 @@ export default function DashboardContent() {
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">ورود مستقیم به بخش‌های پرکاربرد مدیریت</p>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {shortcuts.map(({ title, description, href, icon: Icon }) => (
+          {shortcuts.filter((item) => hasPermission(permissionKeys, item.module, item.actions)).map(({ title, description, href, icon: Icon }) => (
             <Link
               key={href}
               href={href}
