@@ -1,20 +1,26 @@
 interface StatCardProps {
-    title: string
-    count: number
-    icon: React.ReactNode
-  }
-  
-  const StatCard = ({ title, count, icon }: StatCardProps) => {
-    return(
-    <div className="w-60 h-36 flex gap-x-5 justify-center items-center rounded-[20px] bg-white dark:bg-gray-700 bg-clip-border shadow-xl p-3">
-      <div className="flex justify-between items-center flex-col gap-y-1 ">
-        <span className="text-slate-500 font-DanaMedium text-sm dark:text-gray-50">{title}</span>
-        <span className="text-slate-500 font-DanaDemiBold text-3xl dark:text-gray-50">{count}</span>
-      </div>
-      <span className="bg-slate-200 dark:bg-gray-700 rounded-full p-2">
-        {icon}
-      </span>
+  title: string;
+  count?: number;
+  icon: React.ReactNode;
+  loading?: boolean;
+}
+
+const StatCard = ({ title, count, icon, loading = false }: StatCardProps) => (
+  <article className="flex min-w-0 items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-gray-950 sm:p-5">
+    <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-elf/10 text-elf dark:bg-elf/15">
+      {icon}
+    </span>
+    <div className="min-w-0">
+      <p className="truncate text-sm text-gray-500 dark:text-gray-400">{title}</p>
+      {loading ? (
+        <span className="mt-2 block h-7 w-16 animate-pulse rounded-md bg-gray-100 dark:bg-gray-800" />
+      ) : (
+        <p className="mt-1 text-2xl font-extrabold tabular-nums text-gray-900 dark:text-white">
+          {count == null ? "—" : count.toLocaleString("fa-IR")}
+        </p>
+      )}
     </div>
-  )}
-  export default StatCard;
-  
+  </article>
+);
+
+export default StatCard;
