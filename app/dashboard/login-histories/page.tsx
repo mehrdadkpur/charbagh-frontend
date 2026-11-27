@@ -6,7 +6,7 @@ import { ShamsiDate } from "@/lib/shamsiDate";
 import { RefreshCw, Search, ShieldCheck, ShieldAlert } from "lucide-react";
 
 type LoginHistory = {
-  id: string; userId: string; userFullName: string; mobile: string;
+  id: string; userId: string | null; userFullName: string | null; mobile: string;
   loginAt: string; logoutAt: string | null; isSuccessful: boolean;
   failureReason: string | null; ipAddress: string | null;
   userAgent: string | null; deviceName: string | null;
@@ -39,7 +39,7 @@ export default function LoginHistoriesPage() {
   const filtered = useMemo(() => {
     const term = search.trim().toLocaleLowerCase();
     return items.filter(item => {
-      const matchesSearch = !term || [item.userFullName, item.mobile, item.ipAddress ?? ""].some(value => value.toLocaleLowerCase().includes(term));
+      const matchesSearch = !term || [item.userFullName ?? "", item.mobile, item.ipAddress ?? ""].some(value => value.toLocaleLowerCase().includes(term));
       const matchesStatus = status === "all" || (status === "success" ? item.isSuccessful : !item.isSuccessful);
       return matchesSearch && matchesStatus;
     });
@@ -66,7 +66,7 @@ export default function LoginHistoriesPage() {
             <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs ${item.isSuccessful ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300" : "bg-red-50 text-red-700 dark:bg-red-400/10 dark:text-red-300"}`}>{item.isSuccessful ? <ShieldCheck size={14}/> : <ShieldAlert size={14}/>} {item.isSuccessful ? "ورود موفق" : "ورود ناموفق"}</span>
           </div>
           <div className="mt-4 grid gap-2 border-t border-gray-100 pt-3 text-xs text-gray-600 dark:border-gray-800 dark:text-gray-300 sm:grid-cols-2 lg:grid-cols-4">
-            <p>ورود: {dateText(item.loginAt)}</p><p>خروج: {item.logoutAt ? dateText(item.logoutAt) : "هنوز خارج نشده"}</p><p>دستگاه: {item.deviceName || "نامشخص"}</p><p>IP: <span dir="ltr">{item.ipAddress || "—"}</span></p>
+            <p>ورود: {dateText(item.loginAt)}</p><p>خروج: {item.logoutAt ? dateText(item.logoutAt) : "هنوز خارج نشده"}</p><p>دستگاه: {item.deviceName || "نامشخص"}</p><p className="break-words sm:col-span-2 lg:col-span-4">مرورگر و سیستم‌عامل: <span dir="auto">{item.userAgent || "ثبت نشده"}</span></p><p>IP: <span dir="ltr">{item.ipAddress || "—"}</span></p>
             {item.failureReason && <p className="text-red-600 dark:text-red-300 sm:col-span-2 lg:col-span-4">علت ناموفق بودن: {item.failureReason}</p>}
           </div>
         </article>)}
