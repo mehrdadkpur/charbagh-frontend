@@ -78,7 +78,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
           />
           <aside
             id="dashboard-mobile-sidebar"
-            className="absolute inset-y-0 right-0 z-10 h-full w-[min(18rem,88vw)] shadow-2xl"
+            className="absolute inset-y-0 right-0 z-10 h-full w-[min(18rem,88vw)] shadow-2xl [&>aside]:!w-full"
           >
             <button
               type="button"
