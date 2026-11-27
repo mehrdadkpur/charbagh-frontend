@@ -262,6 +262,7 @@ const EditUser = () => {
           nationalities={nationalities}
           createdAt={user.createdAt}
           status={user.status}
+          permissionAction="Update"
           loading={saving}
           handleChange={handleChange}
           handleBirthDateChange={handleBirthDateChange}
