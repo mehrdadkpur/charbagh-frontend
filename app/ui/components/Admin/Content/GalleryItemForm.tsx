@@ -6,12 +6,15 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { apiFetch } from "@/lib/apiFetch";
 import type { CmsGallery, CmsGalleryItem, GalleryMediaType } from "@/lib/contentTypes";
+import { useCurrentPermissions } from "@/lib/useCurrentPermissions";
 
 type Props = { mediaType: GalleryMediaType; itemId?: string };
 
 export default function GalleryItemForm({ mediaType, itemId }: Props) {
   const router = useRouter();
   const isEdit = Boolean(itemId);
+  const { can, loading: permissionLoading } = useCurrentPermissions();
+  const canSubmit = !permissionLoading && can("GalleryItems", [isEdit ? "Update" : "Create"]);
   const [galleries, setGalleries] = useState<CmsGallery[]>([]);
   const [galleryId, setGalleryId] = useState("");
   const [title, setTitle] = useState("");
@@ -50,6 +53,7 @@ export default function GalleryItemForm({ mediaType, itemId }: Props) {
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!canSubmit) { toast.error("مجوز لازم برای این عملیات را ندارید."); return; }
     if (!isEdit && !galleryId) {
       toast.error("گالری مقصد را انتخاب کنید.");
       return;
@@ -100,6 +104,7 @@ export default function GalleryItemForm({ mediaType, itemId }: Props) {
     <main dir="rtl" className="mx-auto mt-6 w-full max-w-3xl space-y-5 px-4 pb-10">
       <h1 className="text-center text-2xl font-bold">{isEdit ? "ویرایش رسانه" : mediaType === 1 ? "افزودن تصویر" : "افزودن ویدئو"}</h1>
       {galleries.length === 0 && <p className="rounded-xl bg-amber-50 p-4 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">ابتدا باید یک گالری فعال ایجاد کنید. <Link className="underline" href="/dashboard/galleries">مدیریت گالری‌ها</Link></p>}
+      {!permissionLoading && !canSubmit && <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">مجوز لازم برای این عملیات را ندارید.</p>}
       <form onSubmit={submit} className="space-y-4 rounded-2xl border bg-white p-6 dark:border-gray-700 dark:bg-gray-900">
         {!isEdit && <label className="block space-y-2"><span className="text-sm">گالری مقصد</span><select required value={galleryId} onChange={(event) => setGalleryId(event.target.value)} className="w-full rounded-lg border bg-transparent p-3"><option value="">انتخاب گالری</option>{galleries.map((gallery) => <option key={gallery.id} value={gallery.id}>{gallery.title}</option>)}</select></label>}
         <label className="block space-y-2"><span className="text-sm">عنوان</span><input value={title} onChange={(event) => setTitle(event.target.value)} className="w-full rounded-lg border bg-transparent p-3" /></label>
@@ -108,7 +113,7 @@ export default function GalleryItemForm({ mediaType, itemId }: Props) {
         <label className="block space-y-2"><span className="text-sm">آدرس تصویر بندانگشتی (اختیاری)</span><input type="url" value={thumbnailUrl} onChange={(event) => setThumbnailUrl(event.target.value)} placeholder="https://..." dir="ltr" className="w-full rounded-lg border bg-transparent p-3" /></label>
         <label className="block space-y-2"><span className="text-sm">ترتیب نمایش</span><input type="number" min="0" value={sortOrder} onChange={(event) => setSortOrder(event.target.value)} className="w-full rounded-lg border bg-transparent p-3" /></label>
         <p className="text-xs leading-6 text-gray-500">در بک‌اند فعلی endpoint بارگذاری فایل تعریف نشده است؛ آدرس فایل باید از قبل در دسترس باشد.</p>
-        <div className="flex gap-3"><button disabled={saving || (!isEdit && galleries.length === 0)} className="rounded-lg bg-blue-600 px-5 py-3 text-white disabled:opacity-50">{saving ? "در حال ذخیره..." : "ذخیره"}</button><Link href={`/dashboard/galleries/${mediaType === 1 ? "photos" : "videos"}`} className="rounded-lg bg-gray-200 px-5 py-3 dark:bg-gray-700">انصراف</Link></div>
+        <div className="flex gap-3"><button disabled={saving || permissionLoading || !canSubmit || (!isEdit && galleries.length === 0)} className="rounded-lg bg-blue-600 px-5 py-3 text-white disabled:opacity-50">{saving ? "در حال ذخیره..." : "ذخیره"}</button><Link href={`/dashboard/galleries/${mediaType === 1 ? "photos" : "videos"}`} className="rounded-lg bg-gray-200 px-5 py-3 dark:bg-gray-700">انصراف</Link></div>
       </form>
     </main>
   );
