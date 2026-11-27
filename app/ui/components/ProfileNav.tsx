@@ -307,8 +307,9 @@ export default function ProfileNav() {
             role="menu"
             aria-label="گزینه‌های حساب کاربری"
             className="
-              absolute left-0 top-full mt-3 w-64
+              fixed left-3 right-3 top-[4.5rem] z-[70] w-auto
               overflow-hidden rounded-2xl
+              sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-3 sm:w-64
               border border-gray-200 bg-white
               shadow-xl shadow-gray-900/10
               ring-1 ring-black/2
