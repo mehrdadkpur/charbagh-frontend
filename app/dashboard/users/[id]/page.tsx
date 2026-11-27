@@ -20,6 +20,7 @@ import { getUserGender } from "@/helper/UserGender";
 import { ShamsiDate } from "@/lib/shamsiDate";
 import { apiFetch, ApiError } from "@/lib/apiFetch";
 import { useCurrentPermissions } from "@/lib/useCurrentPermissions";
+import LoginHistoryPanel from "@/app/ui/components/LoginHistoryPanel";
 
 const EMPTY = "ثبت نشده است";
 
@@ -166,6 +167,8 @@ export default function UserDetailsPage() {
         <InfoRow icon={<CalendarDays size={16}/>} label="تاریخ ایجاد حساب" value={formatDate(user.createdAt)}/>
         <InfoRow icon={<Hash size={16}/>} label="شناسه کاربر" value={user.id} ltr/>\n        <InfoRow icon={<CheckCircle2 size={16}/>} label="تأیید شماره موبایل" value={details.mobileConfirmed?"تأیید شده":"تأیید نشده"}/>\n        <InfoRow icon={<CheckCircle2 size={16}/>} label="تأیید ایمیل" value={details.emailConfirmed?"تأیید شده":"تأیید نشده"}/>\n        <InfoRow icon={<Clock3 size={16}/>} label="آخرین ورود" value={formatDate(details.lastLoginAt)}/>
       </InfoSection>
+
+      {can("LoginHistories", ["View"]) && <LoginHistoryPanel userId={user.id} />}
     </div>
   </main>;
 }
