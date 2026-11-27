@@ -207,9 +207,9 @@ const Notifications = () => {
                       className="block px-3 py-3 transition-colors hover:bg-sky-50/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-elf dark:hover:bg-sky-950/20"
                     >
                       <span className="block text-xs text-gray-500 dark:text-gray-400">
-                        {blog.user ? `${blog.user.firstname ?? ""} ${blog.user.lastname ?? ""}`.trim() : "کاربر"}
+                        {blog.author ? `${blog.author.firstName ?? ""} ${blog.author.lastName ?? ""}`.trim() : "کاربر"}
                       </span>
-                      <span className="mt-1 block text-sm font-semibold">{blog.blog_title}</span>
+                      <span className="mt-1 block text-sm font-semibold">{blog.title}</span>
                     </Link>
                   </li>
                 ))}
