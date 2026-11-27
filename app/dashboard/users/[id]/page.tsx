@@ -18,7 +18,7 @@ import Loading from "@/app/loading";
 import StatusBadge from "@/app/ui/components/UserStatusBadge";
 import { getUserGender } from "@/helper/UserGender";
 import { ShamsiDate } from "@/lib/shamsiDate";
-import { apiFetch } from "@/lib/apiFetch";
+import { apiFetch, ApiError } from "@/lib/apiFetch";
 
 const EMPTY = "ثبت نشده است";
 
