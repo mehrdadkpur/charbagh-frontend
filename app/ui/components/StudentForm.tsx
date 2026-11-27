@@ -9,6 +9,7 @@ import {
   UserRound,
 } from "lucide-react";
 
+import { useCurrentPermissions } from "@/lib/useCurrentPermissions";
 import type { IUser, IStudent } from "@/lib/types";
 import ShamsiDatePicker from "./ShamsiDatePicker";
 
@@ -33,6 +34,8 @@ export default function StudentForm({
   onSubmit,
 }: Props) {
   const router = useRouter();
+  const { can, loading: permissionLoading } = useCurrentPermissions();
+  const canSubmit = !permissionLoading && can("Students", [mode === "create" ? "Create" : "Update"]);
 
   const [values, setValues] = useState<StudentFormValues>({
     userId: selectedUser.id,
@@ -55,6 +58,10 @@ export default function StudentForm({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError(null);
+    if (!canSubmit) {
+      setFormError("مجوز لازم برای این عملیات را ندارید.");
+      return;
+    }
 
     if (
       !selectedUser.id ||
@@ -175,6 +182,8 @@ export default function StudentForm({
         </div>
       </section>
 
+      {!permissionLoading && !canSubmit && <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">مجوز لازم برای این عملیات را ندارید.</p>}
+
       {formError && (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
           {formError}
@@ -194,7 +203,7 @@ export default function StudentForm({
         <button
           type="submit"
           disabled={
-            submitting ||
+            submitting || permissionLoading || !canSubmit ||
             !selectedUser.nationalIdentificationNumber?.trim()
           }
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-elf px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-elf/90 disabled:cursor-not-allowed disabled:opacity-60"
