@@ -32,6 +32,7 @@ import {
   RefreshCw,
   CircleAlert,
   Music2,
+  Megaphone,
 } from "lucide-react";
 
 type MenuItem = {
@@ -224,6 +225,13 @@ const MENU_GROUPS: MenuGroup[] = [
         href: "/dashboard/blogs",
         icon: FileText,
         module: "Blogs",
+        actions: ["View", "Create", "Update", "Delete", "Approve"],
+      },
+      {
+        title: "بنرهای اطلاع‌رسانی",
+        href: "/dashboard/banners",
+        icon: Megaphone,
+        module: "Banners",
         actions: ["View", "Create", "Update", "Delete", "Approve"],
       },
       {
